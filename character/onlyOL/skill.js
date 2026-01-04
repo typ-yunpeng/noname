@@ -1183,35 +1183,93 @@ const skills = {
 		enable: "phaseUse",
 		usable: 1,
 		filterTarget: lib.filter.notMe,
+		// async content(event, trigger, player) {
+		// 	const { target } = event;
+		// 	const att = get.attitude(target, player);
+		// 	const card = new lib.element.VCard({ name: "sha", isCard: true });
+		// 	const { bool } = await target
+		// 		.chooseToGive(player, `${get.translation(player)}对你发动了【平讨】`, "交给其一张牌并令其本回合使用的下一张【杀】可额外选择一个目标；或点击“取消”令其视为对你使用一张【杀】", "he")
+		// 		.set("ai", card => {
+		// 			const { give, att } = get.event();
+		// 			if (give) {
+		// 				if (card.name == "tao" || card.name == "jiu") {
+		// 					return 0;
+		// 				}
+		// 				return 8 - get.value(card);
+		// 			}
+		// 			if (att < 0 && card.name == "sha") {
+		// 				return -1;
+		// 			}
+		// 			return 6 - get.value(card);
+		// 		})
+		// 		.set("give", !player.canUse(card, target, false, true) && (att >= 0 || (target.hp == 1 && target.countCards("hs", "shan") <= 1)) && get.effect(target, { name: "sha" }, player, target) < 0)
+		// 		.set("att", att)
+		// 		.forResult();
+		// 	if (bool) {
+		// 		player.addTempSkill(event.name + "_sha");
+		// 		player.addMark(event.name + "_sha", 1, false);
+		// 	} else {
+		// 		if (player.canUse(card, target, false, true)) {
+		// 			await player.useCard(card, target);
+		// 		}
+		// 	}
+		// },
 		async content(event, trigger, player) {
 			const { target } = event;
 			const att = get.attitude(target, player);
 			const card = new lib.element.VCard({ name: "sha", isCard: true });
+			const canUseSha = player.canUse(card, target, false, true); // 检查是否能使用杀
+			
+			// 情况1：完全不能出杀 - 强制给牌
+			if (!canUseSha) {
+				// 强制选择给牌，不允许取消
+				const { bool } = await target
+					.chooseToGive(player, `${get.translation(player)}对你发动了【平讨】`, 
+						"交给其一张牌（你不能选择取消）", "he")
+					.set("ai", card => 10 - get.value(card)) // 简化：强制给牌时给价值最低的牌
+					.set("give", true) // 强制只能选给牌
+					.set("att", att)
+					.forResult();
+				
+				// 强制给牌的情况，bool一定为true
+				if (bool) {
+					player.addTempSkill(event.name + "_sha");
+					player.addMark(event.name + "_sha", 1, false);
+				}
+				return; // 处理结束
+			}
+			
+			// 情况2：能出杀 - 正常逻辑
 			const { bool } = await target
-				.chooseToGive(player, `${get.translation(player)}对你发动了【平讨】`, "交给其一张牌并令其本回合使用的下一张【杀】可额外选择一个目标；或点击“取消”令其视为对你使用一张【杀】", "he")
+				.chooseToGive(player, `${get.translation(player)}对你发动了【平讨】`, 
+					"交给其一张牌并令其本回合使用的下一张【杀】可额外选择一个目标；或点击取消令其视为对你使用一张【杀】", "he")
 				.set("ai", card => {
 					const { give, att } = get.event();
 					if (give) {
+						// 正常情况下的AI给牌策略
 						if (card.name == "tao" || card.name == "jiu") {
-							return 0;
+							return 0; // 桃和酒不太愿意给
 						}
-						return 8 - get.value(card);
+						return 8 - get.value(card); // 牌价值越低越愿意给
 					}
+					// 选择是否接受杀时的AI评估
 					if (att < 0 && card.name == "sha") {
 						return -1;
 					}
 					return 6 - get.value(card);
 				})
-				.set("give", !player.canUse(card, target, false, true) && (att >= 0 || (target.hp == 1 && target.countCards("hs", "shan") <= 1)) && get.effect(target, { name: "sha" }, player, target) < 0)
+				.set("give", (att >= 0 || (target.hp == 1 && target.countCards("hs", "shan") <= 1)) 
+						&& get.effect(target, { name: "sha" }, player, target) < 0)
 				.set("att", att)
 				.forResult();
+				
 			if (bool) {
+				// 选择了给牌
 				player.addTempSkill(event.name + "_sha");
 				player.addMark(event.name + "_sha", 1, false);
 			} else {
-				if (player.canUse(card, target, false, true)) {
-					await player.useCard(card, target);
-				}
+				// 选择了取消
+				await player.useCard(card, target);
 			}
 		},
 		ai: {
@@ -1275,37 +1333,135 @@ const skills = {
 		},
 		logTarget: "target",
 		logAudio: () => ["jsrgjuelie3.mp3", "jsrgjuelie4.mp3"],
-		async cost(event, trigger, player) {
-			event.result = await player
-				.chooseToDiscard(get.prompt(event.skill, trigger.target), `当你使用【杀】指定一名角色为目标后，你可以弃置至多${get.cnNumber(player.hp, true)}张牌，然后弃置其等量的牌`, [1, player.hp], "he")
-				.set("allowChooseAll", true)
-				.set("ai", card => {
-					if (ui.selected.cards.length >= _status.event.max) {
+		// async cost(event, trigger, player) {
+		// 	event.result = await player
+		// 		.chooseToDiscard(get.prompt(event.skill, trigger.target), `当你使用【杀】指定一名角色为目标后，你可以弃置至多${get.cnNumber(player.hp, true)}张牌，然后弃置其等量的牌`, [1, player.hp], "he")
+		// 		.set("allowChooseAll", true)
+		// 		.set("ai", card => {
+		// 			if (ui.selected.cards.length >= _status.event.max) {
+		// 				return 0;
+		// 			}
+		// 			if (_status.event.goon) {
+		// 				return 4.5 - get.value(card);
+		// 			}
+		// 			return 0;
+		// 		})
+		// 		.set("max", trigger.target.countDiscardableCards(player, "he"))
+		// 		.set("goon", get.attitude(player, trigger.target) < 0)
+		// 		.set("chooseonly", true)
+		// 		.forResult();
+		// },
+		// async content(event, trigger, player) {
+		// 	const { cards } = event;
+		// 	await player.discard(cards);
+		// 	const num = cards.length;
+		// 	if (trigger.target.countDiscardableCards(player, "he")) {
+		// 		await player.discardPlayerCard("平讨：弃置" + get.translation(trigger.target) + get.cnNumber(num) + "张牌", num, "he", trigger.target, true);
+		// 	}
+		// 	const evt = trigger.getParent();
+		// 	evt.card.storage ??= {};
+		// 	evt.card.storage.oljuelie = true;
+		// 	if (player.isMinHandcard() || player.isMinHp()) {
+		// 		evt.baseDamage ??= 1;
+		// 		evt.baseDamage++;
+		// 	}
+		// },
+			// ============ 替换这里的 cost 方法 ============
+    	async cost(event, trigger, player) {
+				const evt = trigger.getParent();
+				
+				// 检查是否已经让玩家选择过弃牌
+				if (evt.card.storage?.jueliePlayerChosen) {
+					event.result = { cards: [] };
+					return;
+				}
+				
+				// 获取所有目标
+				const targets = trigger.getParent().targets || [trigger.target];
+				
+				// 标记为玩家已选择
+				evt.card.storage ??= {};
+				evt.card.storage.jueliePlayerChosen = true;
+				
+				// 让玩家选择弃置牌的数量
+				event.result = await player
+					.chooseToDiscard(
+						get.prompt(event.skill, targets[0]), 
+						`当你使用【杀】指定${targets.length > 1 ? '多个' : ''}目标后，你可以弃置至多${get.cnNumber(player.hp, true)}张牌，然后每个目标可以依次选择是否弃置等量牌（若目标牌不足则弃完为止）`, 
+						[1, player.hp],
+						"he"
+					)
+					.set("allowChooseAll", true)
+					.set("ai", card => {
+						if (ui.selected.cards.length >= _status.event.max) {
+							return 0;
+						}
+						if (_status.event.goon) {
+							return 4.5 - get.value(card);
+						}
 						return 0;
-					}
-					if (_status.event.goon) {
-						return 4.5 - get.value(card);
-					}
-					return 0;
-				})
-				.set("max", trigger.target.countDiscardableCards(player, "he"))
-				.set("goon", get.attitude(player, trigger.target) < 0)
-				.set("chooseonly", true)
-				.forResult();
-		},
+					})
+					.set("max", player.hp)
+					.set("goon", targets.some(target => get.attitude(player, target) < 0))
+					.set("chooseonly", true)
+					.forResult();
+			},
 		async content(event, trigger, player) {
 			const { cards } = event;
-			await player.discard(cards);
-			const num = cards.length;
-			if (trigger.target.countDiscardableCards(player, "he")) {
-				await player.discardPlayerCard("平讨：弃置" + get.translation(trigger.target) + get.cnNumber(num) + "张牌", num, "he", trigger.target, true);
-			}
-			const evt = trigger.getParent();
-			evt.card.storage ??= {};
-			evt.card.storage.oljuelie = true;
-			if (player.isMinHandcard() || player.isMinHp()) {
-				evt.baseDamage ??= 1;
-				evt.baseDamage++;
+			
+			// 你弃牌的处理
+			if (cards && cards.length > 0 && !trigger.getParent().card.storage?.jueliePlayerDiscarded) {
+				await player.discard(cards);
+				const evt = trigger.getParent();
+				evt.card.storage ??= {};
+				
+				// 设置原来的标记
+				evt.card.storage.oljuelie = true;
+				
+				// 设置新逻辑需要的标记
+				evt.card.storage.jueliePlayerDiscarded = true;
+				evt.card.storage.juelieNum = cards.length;
+				
+				// 关键：一次性处理所有目标
+				for (const target of evt.targets || []) {
+					const needToDiscard = evt.card.storage.juelieNum - (evt.card.storage.juelieTotalDiscarded || 0);
+					if (needToDiscard <= 0) break;
+					
+					const discardableCards = target.countDiscardableCards(player, "he");
+					const actualToDiscard = Math.min(needToDiscard, discardableCards);
+					
+					if (actualToDiscard > 0) {
+						const isLastTarget = (target === evt.targets[evt.targets.length - 1]);
+						
+						if (isLastTarget) {
+							// 最后一个目标强制弃置
+							const discardResult = await target
+								.chooseToDiscard(`决裂：必须弃置${actualToDiscard}张牌`, '', [actualToDiscard, actualToDiscard], "he")
+								.set("forced", true)
+								.forResult();
+							if (discardResult.cards?.length > 0) {
+								await target.discard(discardResult.cards);
+								evt.card.storage.juelieTotalDiscarded = (evt.card.storage.juelieTotalDiscarded || 0) + discardResult.cards.length;
+							}
+						} else {
+							// 非最后一个目标可以选择
+							const discardResult = await target
+								.chooseToDiscard(`决裂：可以选择弃置最多${actualToDiscard}张牌`, `0-${actualToDiscard}张`, [0, actualToDiscard], "he")
+								.forResult();
+							if (discardResult.cards?.length > 0) {
+								await target.discard(discardResult.cards);
+								evt.card.storage.juelieTotalDiscarded = (evt.card.storage.juelieTotalDiscarded || 0) + discardResult.cards.length;
+							}
+						}
+					}
+				}
+				
+				// 原来的伤害加成逻辑 - 放在最后，在所有弃牌完成后检查
+				// 注意：这里 player 是使用技能的角色，targets 中的目标是被弃牌的角色
+				if (player.isMinHandcard() || player.isMinHp()) {
+					evt.baseDamage ??= 1;
+					evt.baseDamage++;
+				}
 			}
 		},
 		group: "ol_juelie_draw",
