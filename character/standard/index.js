@@ -24,6 +24,15 @@ game.import("character", function () {
 		characterTitle: { ...characterTitles },
 		dynamicTranslate: { ...dynamicTranslates },
 		characterIntro: { ...characterIntros },
+		characterSubstitute: {
+			caocao: [
+				["caocao_skin1", ["die:caocao"]],
+				["caocao_skin2", ["die:caocao"]]
+			],
+		    zhugezhan: [
+				["zhugezhan_skin1", ["die:zhugezhan"]]
+			]
+		},
 		card: { ...cards },
 		skill: { ...skills },
 		perfectPair: { ...perfectPairs },

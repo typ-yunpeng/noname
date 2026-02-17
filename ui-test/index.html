@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ancient Warfare Fantasy UI - 古代战争幻想界面</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #4A2D1F;
+            --secondary: #D4AF37;
+            --accent: #B85C38;
+            --text-light: #F5E6D3;
+            --text-dark: #2D1810;
+        }
+
+        body {
+            font-family: 'Noto Serif SC', 'SimSun', serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a0a05 0%, #4A2D1F 30%, #B85C38 60%, #8B4513 100%);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 背景纹理层 */
+        .texture-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background-image: 
+                radial-gradient(ellipse at 20% 30%, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, rgba(184, 92, 56, 0.1) 0%, transparent 50%);
+            z-index: 0;
+        }
+
+        /* 主容器 - 16:9 比例 */
+        .game-container {
+            position: relative;
+            width: 100%;
+            max-width: 1920px;
+            min-height: 100vh;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            z-index: 1;
+            padding: 10px;
+        }
+
+        /* 顶部栏 */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: linear-gradient(180deg, rgba(74, 45, 31, 0.95) 0%, rgba(45, 24, 16, 0.9) 100%);
+            border: 3px solid var(--secondary);
+            border-radius: 8px;
+            box-shadow: 
+                0 4px 20px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(212, 175, 55, 0.3),
+                0 0 30px rgba(212, 175, 55, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .status-indicators {
+            display: flex;
+            gap: 20px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--secondary);
+            font-size: 14px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .status-icon {
+            width: 24px;
+            height: 24px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--text-light);
+            box-shadow: 0 0 10px rgba(184, 92, 56, 0.6);
+        }
+
+        .menu-access {
+            display: flex;
+            gap: 15px;
+        }
+
+        .menu-btn {
+            padding: 8px 20px;
+            background: linear-gradient(180deg, var(--accent) 0%, #8B4513 100%);
+            border: 2px solid var(--secondary);
+            border-radius: 5px;
+            color: var(--text-light);
+            font-family: inherit;
+            font-weight: bold;
+            cursor: pointer;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+            box-shadow: 
+                0 3px 10px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .menu-btn:hover {
+            background: linear-gradient(180deg, #D4AF37 0%, var(--accent) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.5);
+        }
+
+        /* 对手区域 */
+        .opponent-area {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .character-card-small {
+            width: 120px;
+            height: 160px;
+            background: linear-gradient(135deg, #2D1810 0%, #4A2D1F 100%);
+            border: 3px solid var(--secondary);
+            border-radius: 8px;
+            position: relative;
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.6),
+                inset 0 0 20px rgba(212, 175, 55, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .character-card-small:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 35px rgba(212, 175, 55, 0.4);
+        }
+
+        .card-frame {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            border: 1px solid rgba(212, 175, 55, 0.5);
+            border-radius: 5px;
+        }
+
+        .card-symbol {
+            position: absolute;
+            top: 8px;
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: var(--text-light);
+            box-shadow: 0 0 8px rgba(184, 92, 56, 0.6);
+        }
+
+        .card-symbol.left { left: 8px; }
+        .card-symbol.right { right: 8px; }
+
+        .card-content {
+            padding: 35px 10px 10px;
+            text-align: center;
+            color: var(--text-light);
+        }
+
+        .card-name {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .card-stats {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            font-size: 12px;
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-value {
+            color: var(--secondary);
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: rgba(245, 230, 211, 0.7);
+        }
+
+        /* 交互中心 */
+        .interaction-center {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .main-actions {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .primary-action-btn {
+            padding: 20px 50px;
+            background: linear-gradient(180deg, #FF8C00 0%, var(--accent) 50%, #8B4513 100%);
+            border: 3px solid var(--secondary);
+            border-radius: 10px;
+            color: var(--text-light);
+            font-family: inherit;
+            font-size: 20px;
+            font-weight: 900;
+            cursor: pointer;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            box-shadow: 
+                0 6px 20px rgba(0, 0, 0, 0.5),
+                inset 0 2px 0 rgba(255, 255, 255, 0.3),
+                0 0 30px rgba(212, 175, 55, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .primary-action-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .primary-action-btn:hover::before {
+            left: 100%;
+        }
+
+        .primary-action-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 
+                0 10px 30px rgba(212, 175, 55, 0.5),
+                inset 0 2px 0 rgba(255, 255, 255, 0.4);
+        }
+
+        .secondary-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .secondary-action-btn {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #3D2817 0%, #2D1810 100%);
+            border: 2px solid var(--secondary);
+            border-radius: 8px;
+            color: var(--secondary);
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 
+                0 4px 15px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(212, 175, 55, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .secondary-action-btn:hover {
+            background: linear-gradient(135deg, var(--accent) 0%, #3D2817 100%);
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .selection-timer {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .timer-display {
+            font-size: 48px;
+            font-weight: 900;
+            color: var(--secondary);
+            text-shadow: 
+                0 0 20px rgba(212, 175, 55, 0.8),
+                2px 2px 4px rgba(0, 0, 0, 0.8);
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .timer-label {
+            font-size: 14px;
+            color: var(--text-light);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
+
+        /* 底部区域 */
+        .bottom-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        /* 玩家手牌 */
+        .player-hand {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: -30px;
+            padding: 20px;
+        }
+
+        .action-card-large {
+            width: 140px;
+            height: 200px;
+            background: linear-gradient(135deg, #2D1810 0%, #4A2D1F 50%, #3D2817 100%);
+            border: 3px solid var(--secondary);
+            border-radius: 10px;
+            position: relative;
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.6),
+                inset 0 0 30px rgba(212, 175, 55, 0.1);
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: -40px;
+        }
+
+        .action-card-large:first-child {
+            margin-left: 0;
+        }
+
+        .action-card-large:hover {
+            transform: translateY(-20px) scale(1.05);
+            box-shadow: 
+                0 20px 40px rgba(212, 175, 55, 0.4),
+                inset 0 0 40px rgba(212, 175, 55, 0.2);
+            z-index: 10;
+        }
+
+        .card-large-content {
+            padding: 45px 15px 15px;
+            text-align: center;
+            color: var(--text-light);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card-large-name {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        .card-large-description {
+            font-size: 11px;
+            line-height: 1.4;
+            color: rgba(245, 230, 211, 0.8);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
+
+        .card-large-cost {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--secondary);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        /* 玩家头像 */
+        .player-avatar {
+            width: 200px;
+        }
+
+        .character-card-large-focus {
+            width: 200px;
+            height: 280px;
+            background: linear-gradient(135deg, #2D1810 0%, #4A2D1F 50%, #3D2817 100%);
+            border: 4px solid var(--secondary);
+            border-radius: 12px;
+            position: relative;
+            box-shadow: 
+                0 15px 40px rgba(0, 0, 0, 0.7),
+                inset 0 0 40px rgba(212, 175, 55, 0.15),
+                0 0 50px rgba(212, 175, 55, 0.3);
+            overflow: hidden;
+        }
+
+        .character-card-large-focus .card-frame {
+            border-width: 2px;
+        }
+
+        .character-card-large-focus .card-symbol {
+            width: 30px;
+            height: 30px;
+            font-size: 16px;
+            top: 10px;
+        }
+
+        .character-card-large-focus .card-symbol.left { left: 10px; }
+        .character-card-large-focus .card-symbol.right { right: 10px; }
+
+        .character-card-large-focus .card-content {
+            padding: 50px 15px 15px;
+        }
+
+        .character-card-large-focus .card-name {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .character-card-large-focus .card-stats {
+            gap: 20px;
+        }
+
+        .character-card-large-focus .stat-value {
+            font-size: 24px;
+        }
+
+        .character-card-large-focus .stat-label {
+            font-size: 12px;
+        }
+
+        /* 仪表 */
+        .gauges {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            right: 15px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .gauge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .gauge-label {
+            font-size: 10px;
+            color: var(--text-light);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
+
+        .gauge-value {
+            display: flex;
+            gap: 3px;
+        }
+
+        .gauge-bead {
+            width: 8px;
+            height: 12px;
+            background: linear-gradient(180deg, #00FF7F 0%, #006400 100%);
+            border-radius: 2px;
+            box-shadow: 0 0 5px rgba(0, 255, 127, 0.5);
+        }
+
+        .gauge-bead.empty {
+            background: linear-gradient(180deg, #333 0%, #111 100%);
+            box-shadow: none;
+        }
+
+        /* 进度条 */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--secondary) 100%);
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+            transition: width 0.3s ease;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .game-container {
+                padding: 5px;
+            }
+
+            .top-bar {
+                padding: 10px 15px;
+            }
+
+            .character-card-small {
+                width: 100px;
+                height: 140px;
+            }
+
+            .action-card-large {
+                width: 120px;
+                height: 170px;
+                margin-left: -35px;
+            }
+
+            .character-card-large-focus {
+                width: 160px;
+                height: 220px;
+            }
+
+            .primary-action-btn {
+                padding: 15px 35px;
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-bar {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .opponent-area {
+                flex-wrap: wrap;
+            }
+
+            .main-actions {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .bottom-area {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .player-hand {
+                width: 100%;
+                overflow-x: auto;
+                padding: 10px;
+            }
+
+            .action-card-large {
+                flex-shrink: 0;
+                margin-left: -25px;
+            }
+
+            .action-card-large:first-child {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="texture-overlay"></div>
+    
+    <div class="game-container">
+        <!-- 顶部栏 -->
+        <header class="top-bar">
+            <div class="status-indicators">
+                <div class="status-item">
+                    <div class="status-icon">⚔</div>
+                    <span>回合: 3</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-icon">💰</div>
+                    <span>金币: 150</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-icon">🎯</div>
+                    <span>经验: 2,450</span>
+                </div>
+            </div>
+            <div class="menu-access">
+                <button class="menu-btn">背包</button>
+                <button class="menu-btn">商店</button>
+                <button class="menu-btn">设置</button>
+            </div>
+        </header>
+
+        <!-- 对手区域 -->
+        <section class="opponent-area">
+            <div class="character-card-small">
+                <div class="card-frame"></div>
+                <div class="card-symbol left">1</div>
+                <div class="card-symbol right">⚔</div>
+                <div class="card-content">
+                    <div class="card-name">敌将·张飞</div>
+                    <div class="card-stats">
+                        <div class="stat">
+                            <div class="stat-value">85</div>
+                            <div class="stat-label">攻击</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">60</div>
+                            <div class="stat-label">防御</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="character-card-small">
+                <div class="card-frame"></div>
+                <div class="card-symbol left">2</div>
+                <div class="card-symbol right">🛡</div>
+                <div class="card-content">
+                    <div class="card-name">敌将·关羽</div>
+                    <div class="card-stats">
+                        <div class="stat">
+                            <div class="stat-value">90</div>
+                            <div class="stat-label">攻击</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">55</div>
+                            <div class="stat-label">防御</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="character-card-small">
+                <div class="card-frame"></div>
+                <div class="card-symbol left">3</div>
+                <div class="card-symbol right">✨</div>
+                <div class="card-content">
+                    <div class="card-name">敌将·诸葛亮</div>
+                    <div class="card-stats">
+                        <div class="stat">
+                            <div class="stat-value">70</div>
+                            <div class="stat-label">攻击</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">45</div>
+                            <div class="stat-label">防御</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 交互中心 -->
+        <section class="interaction-center">
+            <div class="main-actions">
+                <button class="primary-action-btn">攻击</button>
+                <button class="primary-action-btn">防御</button>
+                <button class="primary-action-btn">技能</button>
+            </div>
+            <div class="secondary-actions">
+                <button class="secondary-action-btn" title="使用道具">📦</button>
+                <button class="secondary-action-btn" title="查看信息">ℹ️</button>
+                <button class="secondary-action-btn" title="撤退">🏃</button>
+                <button class="secondary-action-btn" title="聊天">💬</button>
+            </div>
+            <div class="selection-timer">
+                <div class="timer-display">30</div>
+                <div class="timer-label">剩余行动时间</div>
+            </div>
+        </section>
+
+        <!-- 底部区域 -->
+        <section class="bottom-area">
+            <!-- 玩家手牌 -->
+            <div class="player-hand">
+                <div class="action-card-large">
+                    <div class="card-frame"></div>
+                    <div class="card-symbol left">⚔</div>
+                    <div class="card-symbol right">3</div>
+                    <div class="card-large-content">
+                        <div>
+                            <div class="card-large-name">烈火斩</div>
+                            <div class="card-large-description">对敌方单体造成150%攻击力的火焰伤害，并有30%概率使其燃烧2回合</div>
+                        </div>
+                        <div class="card-large-cost">3</div>
+                    </div>
+                </div>
+                <div class="action-card-large">
+                    <div class="card-frame"></div>
+                    <div class="card-symbol left">🛡</div>
+                    <div class="card-symbol right">2</div>
+                    <div class="card-large-content">
+                        <div>
+                            <div class="card-large-name">铁壁防御</div>
+                            <div class="card-large-description">提升自身防御力50%，持续1回合，并反弹20%受到的伤害</div>
+                        </div>
+                        <div class="card-large-cost">2</div>
+                    </div>
+                </div>
+                <div class="action-card-large">
+                    <div class="card-frame"></div>
+                    <div class="card-symbol left">✨</div>
+                    <div class="card-symbol right">4</div>
+                    <div class="card-large-content">
+                        <div>
+                            <div class="card-large-name">雷霆万钧</div>
+                            <div class="card-large-description">召唤雷电攻击所有敌人，造成120%攻击力的伤害，并有25%概率使其眩晕1回合</div>
+                        </div>
+                        <div class="card-large-cost">4</div>
+                    </div>
+                </div>
+                <div class="action-card-large">
+                    <div class="card-frame"></div>
+                    <div class="card-symbol left">💚</div>
+                    <div class="card-symbol right">2</div>
+                    <div class="card-large-content">
+                        <div>
+                            <div class="card-large-name">回春术</div>
+                            <div class="card-large-description">恢复自身30%的最大生命值，并清除所有负面状态</div>
+                        </div>
+                        <div class="card-large-cost">2</div>
+                    </div>
+                </div>
+                <div class="action-card-large">
+                    <div class="card-frame"></div>
+                    <div class="card-symbol left">🌟</div>
+                    <div class="card-symbol right">5</div>
+                    <div class="card-large-content">
+                        <div>
+                            <div class="card-large-name">天神下凡</div>
+                            <div class="card-large-description">进入神化状态3回合，攻击力提升80%，所有技能冷却时间减少1回合</div>
+                        </div>
+                        <div class="card-large-cost">5</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 玩家头像 -->
+            <div class="player-avatar">
+                <div class="character-card-large-focus">
+                    <div class="card-frame"></div>
+                    <div class="card-symbol left">★</div>
+                    <div class="card-symbol right">⚔</div>
+                    <div class="card-content">
+                        <div class="card-name">主将·赵云</div>
+                        <div class="card-stats">
+                            <div class="stat">
+                                <div class="stat-value">95</div>
+                                <div class="stat-label">攻击</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">70</div>
+                                <div class="stat-label">防御</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gauges">
+                        <div class="gauge">
+                            <div class="gauge-label">生命</div>
+                            <div class="gauge-value">
+                                <div class="gauge-bead"></div>
+                                <div class="gauge-bead"></div>
+                                <div class="gauge-bead"></div>
+                                <div class="gauge-bead"></div>
+                                <div class="gauge-bead"></div>
+                                <div class="gauge-bead"></div>
+                                <div class="gauge-bead"></div>
+                                <div class="gauge-bead empty"></div>
+                                <div class="gauge-bead empty"></div>
+                            </div>
+                        </div>
+                        <div class="gauge">
+                            <div class="gauge-label">法力</div>
+                            <div class="gauge-value">
+                                <div class="gauge-bead"></div>
+                                <div class="gauge-bead"></div>
+                                <div class="gauge-bead"></div>
+                                <div class="gauge-bead"></div>
+                                <div class="gauge-bead"></div>
+                                <div class="gauge-bead empty"></div>
+                                <div class="gauge-bead empty"></div>
+                                <div class="gauge-bead empty"></div>
+                                <div class="gauge-bead empty"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 80%;"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // 倒计时功能
+        let timeLeft = 30;
+        const timerDisplay = document.querySelector('.timer-display');
+        
+        const countdown = setInterval(() => {
+            timeLeft--;
+            timerDisplay.textContent = timeLeft;
+            
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                timerDisplay.textContent = '0';
+                timerDisplay.style.color = '#FF4444';
+            }
+        }, 1000);
+
+        // 卡片悬停效果增强
+        document.querySelectorAll('.action-card-large').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.zIndex = '100';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.zIndex = '1';
+            });
+        });
+
+        // 按钮点击效果
+        document.querySelectorAll('.primary-action-btn, .secondary-action-btn, .menu-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 100);
+            });
+        });
+    </script>
+</body>
+</html>

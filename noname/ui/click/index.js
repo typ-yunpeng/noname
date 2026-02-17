@@ -4121,14 +4121,7 @@ export class Click {
 					intro = uiintro.querySelector(".characterintro");
 				}
 				if (intro) {
-					intro.style.display = "flex";
-					intro.style.flexDirection = "column";
-					let contentWrapper = ui.create.div(".intro-content-wrapper");
-					contentWrapper.style.flex = "1";
-					while (intro.firstChild) {
-						contentWrapper.appendChild(intro.firstChild);
-					}
-					intro.appendChild(contentWrapper);
+					intro.style.display = "block";
 					// 清除已有皮肤
 					delete bg.tempSkin;
 					const skillButtons = document.getElementsByClassName("characterskill")?.[0]?.childNodes;
@@ -4143,8 +4136,8 @@ export class Click {
 					}
 					// 创建皮肤容器
 					let skinsContainer = ui.create.div(".skins-container", intro);
-					skinsContainer.style.marginTop = "auto";
-					skinsContainer.style.paddingTop = "20px";
+					skinsContainer.style.marginTop = "20px";
+					skinsContainer.style.paddingTop = "0";
 					// 创建皮肤列表
 					let skinsList = ui.create.div(".skins-list.horizontal", skinsContainer);
 					skinsList.style.display = "flex";
@@ -4157,6 +4150,13 @@ export class Click {
 						let skinButton = ui.create.div(".skin-button", skinsList, function () {
 							bg.style.backgroundImage = this.style.backgroundImage;
 							bg.tempSkin = this.name;
+							if (sourcenode) {
+								sourcenode.style.backgroundImage = this.style.backgroundImage;
+							}
+							if (avatar) {
+								avatar.style.backgroundImage = this.style.backgroundImage;
+							}
+							
 							const skillButtons = document.getElementsByClassName("characterskill")?.[0]?.childNodes;
 							if (skillButtons) {
 								for (let i = 0; i < skillButtons.length; i++) {
@@ -4167,28 +4167,7 @@ export class Click {
 							if (currentSkinsContainer) {
 								currentSkinsContainer.remove();
 							}
-							const currentWrapper = intro.querySelector(".intro-content-wrapper");
-							if (currentWrapper) {
-								while (intro.firstChild) {
-									intro.removeChild(intro.firstChild);
-								}
-								while (currentWrapper.firstChild) {
-									intro.appendChild(currentWrapper.firstChild);
-								}
-							}
 							refreshIntro();
-							intro.style.display = "flex";
-							intro.style.flexDirection = "column";
-							let newWrapper = ui.create.div(".intro-content-wrapper");
-							newWrapper.style.flex = "1";
-							while (intro.firstChild && (!intro.firstChild.classList || !intro.firstChild.classList.contains("skins-container"))) {
-								newWrapper.appendChild(intro.firstChild);
-							}
-							if (intro.firstChild) {
-								intro.insertBefore(newWrapper, intro.firstChild);
-							} else {
-								intro.appendChild(newWrapper);
-							}
 							if (currentSkinsContainer) {
 								intro.appendChild(currentSkinsContainer);
 							}
