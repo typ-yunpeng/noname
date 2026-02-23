@@ -459,6 +459,7 @@ export class GameEvent implements PromiseLike<void> {
 		}
 	}
 	trigger(name: string): GameEvent {
+		debugger;
 		if (_status.video) {
 			return;
 		}

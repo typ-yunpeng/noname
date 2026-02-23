@@ -202,6 +202,14 @@ const characters = {
 		hp: 4,
 		skills: ["oljingce"],
 	},
+	ol_xusheng: {
+		sex: "male",
+		group: "wu",
+		hp: 4,
+		skills: ["ol_pojun"],
+		names: "徐|盛",
+		img: "image/character/ol_xusheng.jpg",
+	},
 	ol_sunxiu: {
 		sex: "male",
 		group: "wu",

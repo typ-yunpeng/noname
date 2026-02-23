@@ -24,6 +24,13 @@ game.import("character", function () {
 		characterTitle: { ...characterTitles },
 		characterSubstitute: {
 			sp_ol_caocao: [["sp_ol_caocao_shadow", ["die:sp_ol_caocao"]]],
+			ol_feiyi: [
+				["ol_feiyi_skin1", ["die:ol_feiyi"]],  // 皮肤1
+				["ol_feiyi_skin2", ["die:ol_feiyi"]],  // 皮肤2
+			],
+			ol_miheng: [
+				["ol_miheng_skin1", ["die:ol_miheng"]]
+			],
 		},
 		dynamicTranslate: { ...dynamicTranslates },
 		characterIntro: { ...characterIntros },

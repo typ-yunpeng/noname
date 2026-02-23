@@ -1,10 +1,5 @@
 <template>
   <div class="hand-cards">
-    <div class="hand-cards-header">
-      <span class="hand-cards-title">手牌</span>
-      <span class="hand-cards-count">{{ cards.length }}/{{ maxCards }}</span>
-    </div>
-    
     <div class="hand-cards-container" ref="containerRef">
       <div
         v-for="(card, index) in cards"
@@ -15,6 +10,7 @@
           'card-selected': selectedCardIds.includes(card.id),
           'card-overlap': shouldOverlap
         }"
+        :style="getCardStyle(index)"
         @mouseenter="handleCardHover(card)"
         @mouseleave="handleCardLeave"
       >
@@ -89,6 +85,21 @@ const shouldOverlap = computed(() => {
   return totalWidth > containerWidth
 })
 
+// 计算卡牌样式
+const getCardStyle = (index: number) => {
+  if (!shouldOverlap.value) {
+    return {}
+  }
+  
+  // 计算重叠偏移量
+  const overlapAmount = 60
+  const offset = index * overlapAmount
+  
+  return {
+    marginLeft: index === 0 ? '0' : `-${overlapAmount}px`,
+    zIndex: index
+  }
+}
 
 // 选中的卡牌ID列表
 const selectedCardIds = ref<string[]>([])
@@ -229,45 +240,26 @@ defineExpose({
 .hand-cards {
   position: relative;
   width: 100%;
-  padding: 1rem;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.5) 100%);
-  border-radius: 12px;
-  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.hand-cards-header {
+  height: 100%;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  justify-content: flex-end;
   align-items: center;
-  margin-bottom: 0.5rem;
-  padding: 0 0.5rem;
-  gap: 1rem;
-}
-
-.hand-cards-title {
-  font-size: 1rem;
-  font-weight: bold;
-  color: #fff;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-.hand-cards-count {
-  font-size: 0.875rem;
-  color: #ffd700;
-  font-weight: bold;
+  padding: 0.5rem;
 }
 
 .hand-cards-container {
   position: relative;
-  height: 220px;
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding: 0 2rem 1rem 2rem;
+  padding: 0 1rem;
   overflow-x: auto;
   overflow-y: hidden;
   scroll-behavior: smooth;
-  gap: 10px;
+  gap: 12px;
 }
 
 .hand-cards-container::-webkit-scrollbar {
@@ -280,12 +272,13 @@ defineExpose({
 }
 
 .hand-cards-container::-webkit-scrollbar-thumb {
-  background: rgba(255, 215, 0, 0.5);
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.5) 0%, rgba(255, 215, 0, 0.7) 100%);
   border-radius: 4px;
+  border: 1px solid rgba(255, 215, 0, 0.3);
 }
 
 .hand-cards-container::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 215, 0, 0.7);
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.7) 0%, rgba(255, 215, 0, 0.9) 100%);
 }
 
 .hand-card-wrapper {
@@ -293,15 +286,7 @@ defineExpose({
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
-}
-
-/* 需要重叠时的样式 */
-.hand-card-wrapper.card-overlap {
-  margin-left: -50px;
-}
-
-.hand-card-wrapper.card-overlap:first-child {
-  margin-left: 0;
+  transform-origin: bottom center;
 }
 
 .hand-card-wrapper:hover {
@@ -317,7 +302,7 @@ defineExpose({
 .hand-card-wrapper.card-selected {
   transform: translateY(-30px) scale(1.05);
   z-index: 100;
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
 }
 
 .hand-cards-empty {
@@ -326,8 +311,9 @@ defineExpose({
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.4);
   font-size: 1rem;
+  font-style: italic;
 }
 
 /* 卡牌详情提示 */
@@ -339,12 +325,13 @@ defineExpose({
   width: 280px;
   padding: 1rem;
   background: rgba(0, 0, 0, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 215, 0, 0.5);
   border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
   z-index: 100;
   margin-bottom: 10px;
   pointer-events: none;
+  backdrop-filter: blur(10px);
 }
 
 .tooltip-header {
@@ -357,22 +344,49 @@ defineExpose({
 }
 
 .tooltip-name {
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: bold;
   color: #ffd700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .tooltip-type {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: #fff;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 3px 10px;
   border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .tooltip-description {
-  font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.85);
   line-height: 1.5;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .hand-cards {
+    padding: 0.25rem;
+  }
+
+  .hand-cards-container {
+    padding: 0 0.5rem;
+    gap: 8px;
+  }
+
+  .card-tooltip {
+    width: 240px;
+    padding: 0.75rem;
+  }
+
+  .tooltip-name {
+    font-size: 1rem;
+  }
+
+  .tooltip-description {
+    font-size: 0.8rem;
+  }
 }
 </style>

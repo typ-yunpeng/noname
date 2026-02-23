@@ -7,35 +7,22 @@
       'is-flipped': player.status === 'flipped',
       'is-linked': player.status === 'linked',
       'is-target': isTarget,
-      'can-select': canSelect
+      'can-select': canSelect,
+      'team-blue': isBlueTeam,
+      'team-red': isRedTeam
     }"
     @click="$emit('click', player)"
   >
-    <!-- 技能按钮区域（左侧） -->
-    <div class="skills-panel" v-if="player.character.skills && player.character.skills.length > 0">
-      <div
-        v-for="skill in player.character.skills"
-        :key="skill.id"
-        class="skill-button"
-        :class="{ 'skill-active': skill.active }"
-        :title="`${skill.name}: ${skill.description}`"
-      >
-        <span class="skill-button-name">{{ skill.name }}</span>
-        <span v-if="skill.limited" class="skill-button-limited">限定</span>
-        <span v-if="skill.active" class="skill-button-active">主动</span>
-      </div>
-    </div>
-
-    <!-- 角色卡片区域（右侧） -->
+    <!-- 角色卡片区域 -->
     <div class="character-card">
-      <!-- 势力标识（左上角） -->
+      <!-- 队伍标识（左上角） -->
+      <div class="team-badge" :class="isBlueTeam ? 'team-blue' : 'team-red'">
+        {{ isBlueTeam ? '蓝' : '红' }}
+      </div>
+
+      <!-- 势力标识（右上角） -->
       <div class="faction-badge" :class="`faction-${player.character.faction}`">
         {{ factionText }}
-      </div>
-
-      <!-- 友/敌标识（右上角） -->
-      <div class="relation-badge" :class="isAlly ? 'relation-ally' : 'relation-enemy'">
-        {{ isAlly ? '友' : '敌' }}
       </div>
 
       <!-- 头像区域 -->
@@ -74,16 +61,16 @@
       <!-- 装备区域 -->
       <div class="equipments" v-if="hasEquipments">
         <div v-if="player.equipCards.weapon" class="equip-item" title="武器">
-          ⚔️ {{ player.equipCards.weapon.name }}
+          ⚔️
         </div>
         <div v-if="player.equipCards.armor" class="equip-item" title="防具">
-          🛡️ {{ player.equipCards.armor.name }}
+          🛡️
         </div>
         <div v-if="player.equipCards.defendHorse" class="equip-item" title="防御马">
-          🐴 {{ player.equipCards.defendHorse.name }}
+          🐴
         </div>
         <div v-if="player.equipCards.offenseHorse" class="equip-item" title="进攻马">
-          🐎 {{ player.equipCards.offenseHorse.name }}
+          🐎
         </div>
       </div>
     </div>
@@ -122,12 +109,16 @@ const factionText = computed(() => {
   return factionMap[props.player.character.faction] || ''
 })
 
-// 判断是否为盟友
-const isAlly = computed(() => {
+// 判断是否为蓝队（1号位和3号位）
+const isBlueTeam = computed(() => {
   const playerId = props.player.id
-  // 1号位和4号位是队友
-  // 2号位和3号位是敌人
-  return playerId === 'player_0' || playerId === 'player_3'
+  return playerId === 'player_0' || playerId === 'player_2'
+})
+
+// 判断是否为红队（2号位和4号位）
+const isRedTeam = computed(() => {
+  const playerId = props.player.id
+  return playerId === 'player_1' || playerId === 'player_3'
 })
 
 const hasEquipments = computed(() => {
@@ -143,17 +134,38 @@ const hasEquipments = computed(() => {
 <style scoped>
 .player-info {
   display: flex;
-  gap: 0.5rem;
   padding: 0.5rem;
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
   border: 2px solid rgba(139, 92, 246, 0.3);
-  border-radius: 12px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.3s;
   position: relative;
   z-index: 5;
-  min-width: 200px;
+  min-width: 120px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* 蓝队样式 */
+.player-info.team-blue {
+  border-color: rgba(59, 130, 246, 0.5);
+  background: linear-gradient(135deg, rgba(30, 58, 138, 0.3) 0%, rgba(59, 130, 246, 0.2) 50%, rgba(30, 58, 138, 0.3) 100%);
+}
+
+.player-info.team-blue:hover {
+  border-color: rgba(59, 130, 246, 0.8);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+}
+
+/* 红队样式 */
+.player-info.team-red {
+  border-color: rgba(239, 68, 68, 0.5);
+  background: linear-gradient(135deg, rgba(153, 27, 27, 0.3) 0%, rgba(239, 68, 68, 0.2) 50%, rgba(153, 27, 27, 0.3) 100%);
+}
+
+.player-info.team-red:hover {
+  border-color: rgba(239, 68, 68, 0.8);
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
 }
 
 /* 古朴建筑纹理背景 */
@@ -172,7 +184,7 @@ const hasEquipments = computed(() => {
       rgba(139, 92, 246, 0.03) 10px,
       rgba(139, 92, 246, 0.03) 20px
     );
-  border-radius: 12px;
+  border-radius: 10px;
   pointer-events: none;
   z-index: 0;
 }
@@ -215,74 +227,14 @@ const hasEquipments = computed(() => {
   cursor: pointer;
 }
 
-/* 技能按钮区域 */
-.skills-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  z-index: 1;
-}
-
-.skill-button {
-  background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
-  border: 2px solid #D2691E;
-  border-radius: 6px;
-  padding: 0.5rem 0.75rem;
-  color: #fff;
-  font-size: 0.85rem;
-  font-weight: bold;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  position: relative;
-  min-width: 60px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.skill-button:hover {
-  background: linear-gradient(135deg, #A0522D 0%, #CD853F 100%);
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-}
-
-.skill-button.skill-active {
-  border-color: #4caf50;
-  background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
-}
-
-.skill-button-name {
-  display: block;
-  margin-bottom: 0.25rem;
-}
-
-.skill-button-limited {
-  display: inline-block;
-  font-size: 0.6rem;
-  color: #e53935;
-  background: rgba(229, 57, 53, 0.3);
-  padding: 1px 4px;
-  border-radius: 2px;
-  margin-right: 0.25rem;
-}
-
-.skill-button-active {
-  display: inline-block;
-  font-size: 0.6rem;
-  color: #ffffff;
-  background: rgba(76, 175, 80, 0.5);
-  padding: 1px 4px;
-  border-radius: 2px;
-  font-weight: bold;
-}
-
 /* 角色卡片区域 */
 .character-card {
   flex: 1;
   background: linear-gradient(135deg, #6B21A8 0%, #7C3AED 50%, #8B5CF6 100%);
-  border-radius: 10px;
-  padding: 0.75rem;
+  border-radius: 8px;
+  padding: 0.5rem;
   position: relative;
-  min-width: 140px;
+  min-width: 100px;
   box-shadow: 0 4px 15px rgba(107, 33, 168, 0.4);
   z-index: 1;
   display: flex;
@@ -290,20 +242,47 @@ const hasEquipments = computed(() => {
   align-items: center;
 }
 
+/* 队伍标识 */
+.team-badge {
+  position: absolute;
+  top: 0.3rem;
+  left: 0.3rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: bold;
+  color: white;
+  z-index: 2;
+  min-width: 24px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.team-badge.team-blue {
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+  border-color: #60a5fa;
+}
+
+.team-badge.team-red {
+  background: linear-gradient(135deg, #991b1b 0%, #ef4444 100%);
+  border-color: #f87171;
+}
+
 /* 势力标识 */
 .faction-badge {
   position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
+  top: 0.3rem;
+  right: 0.3rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.65rem;
   font-weight: bold;
   color: white;
   background: rgba(0, 0, 0, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.3);
   z-index: 2;
-  min-width: 24px;
+  min-width: 20px;
   text-align: center;
 }
 
@@ -327,49 +306,21 @@ const hasEquipments = computed(() => {
   border-color: #f97316;
 }
 
-/* 友/敌标识 */
-.relation-badge {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
-  font-weight: bold;
-  color: white;
-  z-index: 2;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.relation-ally {
-  background: linear-gradient(135deg, #166534 0%, #22c55e 100%);
-  border: 2px solid #4ade80;
-}
-
-.relation-enemy {
-  background: linear-gradient(135deg, #991b1b 0%, #ef4444 100%);
-  border: 2px solid #f87171;
-}
-
 /* 头像区域 */
 .avatar-section {
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .avatar-image {
-  width: 80px;
-  height: 80px;
-  border-radius: 8px;
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
   overflow: hidden;
-  border: 3px solid rgba(255, 255, 255, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.5);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
@@ -381,8 +332,8 @@ const hasEquipments = computed(() => {
 }
 
 .character-name {
-  margin-top: 0.5rem;
-  font-size: 1.1rem;
+  margin-top: 0.3rem;
+  font-size: 0.9rem;
   font-weight: bold;
   color: white;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
@@ -393,17 +344,17 @@ const hasEquipments = computed(() => {
   width: 100%;
   display: flex;
   justify-content: center;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.3rem;
 }
 
 .hp-gems {
   display: flex;
-  gap: 0.25rem;
+  gap: 0.15rem;
 }
 
 .hp-gem {
-  width: 24px;
-  height: 24px;
+  width: 18px;
+  height: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -427,23 +378,23 @@ const hasEquipments = computed(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 0.5rem;
-  padding: 0.5rem;
+  margin-bottom: 0.3rem;
+  padding: 0.3rem;
   background: rgba(0, 0, 0, 0.2);
-  border-radius: 6px;
+  border-radius: 4px;
 }
 
 .hand-cards-count {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: bold;
   color: #ffd700;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .hand-cards-label {
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   color: rgba(255, 255, 255, 0.8);
-  margin-top: 0.25rem;
+  margin-top: 0.1rem;
 }
 
 /* 装备区域 */
@@ -451,17 +402,52 @@ const hasEquipments = computed(() => {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.1rem;
   margin-top: auto;
 }
 
 .equip-item {
-  font-size: 0.75rem;
-  padding: 0.25rem 0.5rem;
+  font-size: 0.7rem;
+  padding: 0.15rem 0.3rem;
   background: rgba(0, 0, 0, 0.3);
-  border-radius: 4px;
+  border-radius: 3px;
   text-align: center;
   color: rgba(255, 255, 255, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .player-info {
+    min-width: 100px;
+    padding: 0.4rem;
+  }
+
+  .character-card {
+    min-width: 80px;
+    padding: 0.4rem;
+  }
+
+  .avatar-image {
+    width: 50px;
+    height: 50px;
+  }
+
+  .character-name {
+    font-size: 0.8rem;
+  }
+
+  .hp-gem {
+    width: 16px;
+    height: 16px;
+  }
+
+  .hand-cards-count {
+    font-size: 1rem;
+  }
+
+  .hand-cards-label {
+    font-size: 0.6rem;
+  }
 }
 </style>

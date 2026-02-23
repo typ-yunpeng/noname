@@ -116,6 +116,11 @@ window.noname_package = {
 		wangshi_bg: "往事",
 		xiongxin_bg: "雄心",
 		xinsha_bg: "新杀",
+		xusheng_bg: "徐盛1",
+		caoying_bg:"曹婴1",
+		lanyinv_bg:"蓝衣女1",
+		xingkong_bg:"星空1",
+		guanyu_bg:"关羽1",
 	},
 	music: {
 		music_phliosophy: "Philosophy of ours",

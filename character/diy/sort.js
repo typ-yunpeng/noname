@@ -16,6 +16,7 @@ const characterSortTranslate = {
 	diy_yijiang2: "设计比赛2021",
 	diy_yijiang3: "设计比赛2022",
 	diy_fakenews: "杀海流言",
+	diy_custom: "自定义",
 	diy_trashbin: "垃圾桶",
 };
 

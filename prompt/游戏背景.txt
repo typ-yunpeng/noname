@@ -1,0 +1,207 @@
+# 游戏背景图片配置指南
+
+## 一、背景图片存放位置
+
+所有游戏背景图片必须存放在以下目录：
+```
+image/background/
+```
+
+## 二、背景配置文件
+
+配置文件位置：`game/package.js`
+
+背景配置在 `background` 对象中（第95-119行）
+
+## 三、添加新背景的步骤
+
+### 方法一：在 package.js 中配置（推荐）
+
+#### 步骤1：准备背景图片
+- 将背景图片文件放到 `image/background/` 目录
+- 文件格式必须是 `.jpg` 格式
+- 建议文件名使用英文，格式：`名称_bg.jpg`
+- 例如：`xinkong_bg.jpg`
+
+#### 步骤2：修改配置文件
+打开 `game/package.js` 文件，找到 `background` 对象（约第95行），添加新背景配置：
+
+```javascript
+background: {
+    ol_bg: "龙纹",
+    planetarian_bg: "星梦",
+    heaven_bg: "红烧",
+    kyoani_bg: "京都",
+    key_bg: "键社",
+    xiaowu_bg: "小无",
+    noname_bg: "璀璨",
+    wuming_bg: "无名",
+    zhulin_bg: "竹林",
+    shengshi_bg: "盛世",
+    taoyuan_bg: "桃园",
+    zhanhuo_bg: "战火",
+    huangtian_bg: "黄天",
+    september_bg: "九月",
+    yinxiang_bg: "印象",
+    zhanyun_bg: "战云",
+    beipan_bg: "背叛",
+    lanting_bg: "兰亭",
+    lingju_bg: "灵雎",
+    sanying_bg: "三英",
+    wangshi_bg: "往事",
+    xiongxin_bg: "雄心",
+    xinsha_bg: "新杀",
+    
+    // 在这里添加新背景
+    xinkong_bg: "星空",  // 格式：文件名（不含.jpg）: "中文名称"
+}
+```
+
+**配置格式说明：**
+- 左边：文件名（不包含 `.jpg` 后缀）
+- 右边：在游戏设置菜单中显示的中文名称
+
+#### 步骤3：重启游戏
+- 保存 `game/package.js` 文件
+- 重启游戏或刷新页面
+- 新背景会自动出现在游戏设置的"背景图片"选项中
+
+### 方法二：使用自定义背景（通过游戏内导入）
+
+1. 打开游戏设置
+2. 找到"背景图片"选项
+3. 使用导入功能上传自定义背景图片
+4. 系统会自动将自定义背景添加到配置中
+5. 自定义背景会以 `custom_` 前缀标识
+
+## 四、配置示例
+
+### 示例1：添加"星空"背景
+
+**文件准备：**
+- 文件路径：`image/background/xinkong_bg.jpg`
+
+**配置代码：**
+```javascript
+background: {
+    // ... 其他配置
+    xinkong_bg: "星空",
+}
+```
+
+### 示例2：添加"水墨"背景
+
+**文件准备：**
+- 文件路径：`image/background/shuimo_bg.jpg`
+
+**配置代码：**
+```javascript
+background: {
+    // ... 其他配置
+    shuimo_bg: "水墨",
+}
+```
+
+## 五、现有背景列表参考
+
+| 文件名 | 中文名称 |
+|--------|----------|
+| ol_bg.jpg | 龙纹 |
+| planetarian_bg.jpg | 星梦 |
+| heaven_bg.jpg | 红烧 |
+| kyoani_bg.jpg | 京都 |
+| key_bg.jpg | 键社 |
+| xiaowu_bg.jpg | 小无 |
+| noname_bg.jpg | 璀璨 |
+| wuming_bg.jpg | 无名 |
+| zhulin_bg.jpg | 竹林 |
+| shengshi_bg.jpg | 盛世 |
+| taoyuan_bg.jpg | 桃园 |
+| zhanhuo_bg.jpg | 战火 |
+| huangtian_bg.jpg | 黄天 |
+| september_bg.jpg | 九月 |
+| yinxiang_bg.jpg | 印象 |
+| zhanyun_bg.jpg | 战云 |
+| beipan_bg.jpg | 背叛 |
+| lanting_bg.jpg | 兰亭 |
+| lingju_bg.jpg | 灵雎 |
+| sanying_bg.jpg | 三英 |
+| wangshi_bg.jpg | 往事 |
+| xiongxin_bg.jpg | 雄心 |
+| xinsha_bg.jpg | 新杀 |
+
+## 六、相关配置文件
+
+### 1. game/config.js
+包含以下相关配置项：
+- `hiddenBackgroundPack`: 隐藏的背景包列表
+- `customBackgroundPack`: 自定义背景包列表
+
+### 2. noname/library/init/index.js
+- `lib.init.background()`: 背景初始化函数（第644-662行）
+
+### 3. noname/init/index.js
+- 背景配置加载逻辑（第149-159行）
+
+### 4. noname/game/index.js
+- `game.updateBackground()`: 更新背景显示函数（第976-990行）
+
+## 七、背景加载流程
+
+1. **游戏启动时**
+   - 从 `game/package.js` 读取 `background` 配置
+   - 将背景添加到 `lib.configMenu.appearence.config.image_background.item` 中
+
+2. **初始化背景**
+   - 调用 `lib.init.background()` 函数
+   - 根据配置设置当前背景
+
+3. **更新背景显示**
+   - 调用 `game.updateBackground()` 函数
+   - 创建背景元素并应用到页面
+
+## 八、注意事项
+
+1. **文件命名规范**
+   - 使用英文文件名
+   - 建议以 `_bg` 结尾
+   - 必须是 `.jpg` 格式
+
+2. **配置格式**
+   - 文件名不需要包含 `.jpg` 后缀
+   - 文件名必须与实际文件名完全一致（区分大小写）
+   - 中文名称会显示在游戏设置菜单中
+
+3. **图片建议**
+   - 建议分辨率：1920x1080 或更高
+   - 建议格式：JPG（质量80-90%）
+   - 建议文件大小：小于2MB
+
+4. **测试验证**
+   - 添加新背景后，建议在游戏设置中测试是否能正常显示
+   - 检查背景图片是否正确加载
+   - 确认中文名称是否正确显示
+
+## 九、常见问题
+
+### Q1: 添加背景后游戏设置中看不到？
+A: 请检查：
+- 文件是否放在 `image/background/` 目录
+- 文件名是否与配置中的文件名一致
+- 是否重启了游戏
+
+### Q2: 背景图片无法显示？
+A: 请检查：
+- 图片格式是否为 `.jpg`
+- 文件名是否正确（区分大小写）
+- 图片文件是否损坏
+
+### Q3: 如何删除某个背景？
+A: 有两种方法：
+1. 从 `image/background/` 目录删除图片文件
+2. 在 `game/package.js` 中删除对应的配置项
+
+### Q4: 如何隐藏某个背景？
+A: 在 `game/config.js` 的 `hiddenBackgroundPack` 数组中添加背景文件名：
+```javascript
+hiddenBackgroundPack: ["xinkong_bg"],  // 隐藏"星空"背景

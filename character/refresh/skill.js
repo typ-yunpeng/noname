@@ -15297,7 +15297,7 @@ const skills = {
 					.set("value", get.value(event.card, player));
 			}
 			"step 2";
-			if (result.bool) {
+			if (result.bool && get.type(event.card) == "basic") {
 				player.discard(event.card);
 				player.storage.rejizhi++;
 				if (_status.currentPhase == player) {

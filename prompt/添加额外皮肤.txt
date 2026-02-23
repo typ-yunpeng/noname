@@ -1,0 +1,189 @@
+# 给 re_lvbu 添加额外皮肤指南
+
+## 一、武将基本信息
+
+- **武将ID**: re_lvbu（界吕布）
+- **原画路径**: image/character/re_lvbu.jpg
+- **阵亡语音**: audio/die/re_lvbu.mp3
+- **技能语音**: audio/skill/wushuang_re_lvbu1.mp3, audio/skill/wushuang_re_lvbu2.mp3
+- **武将定义位置**: character/refresh/character.js
+
+## 二、添加皮肤的步骤
+
+### 步骤1：在 index.js 中定义皮肤
+
+在对应武将包的 index.js 文件中，找到 `game.import("character", function () {` 返回的对象，添加 `characterSubstitute` 属性。
+
+以 re_lvbu 为例，在 `character/refresh/index.js` 中添加：
+
+```javascript
+game.import("character", function () {
+	return {
+		name: "refresh",
+		connect: true,
+		character: { ...characters },
+		characterSort: {
+			refresh: characterSort,
+		},
+		characterFilter: { ...characterFilters },
+		characterTitle: { ...characterTitles },
+		dynamicTranslate: { ...dynamicTranslates },
+		characterIntro: { ...characterIntros },
+		card: { ...cards },
+		skill: { ...skills },
+		perfectPair: { ...perfectPairs },
+		translate: { ...translates, ...voices, ...characterSortTranslate },
+		pinyins: { ...pinyins },
+		characterSubstitute: {
+			re_lvbu: [
+				["re_lvbu_skin1", ["die:re_lvbu"]],  // 皮肤1
+				["re_lvbu_skin2", ["die:re_lvbu"]],  // 皮肤2
+			],
+		},
+	};
+});
+```
+
+### 步骤2：准备皮肤资源文件
+
+将皮肤图片放到 `image/character/` 目录下：
+
+```
+image/character/
+├── re_lvbu.jpg              # 原皮
+├── re_lvbu_skin1.jpg        # 皮肤1
+└── re_lvbu_skin2.jpg        # 皮肤2
+```
+
+阵亡语音（可选）：
+```
+audio/die/
+├── re_lvbu.mp3              # 原皮阵亡语音
+├── re_lvbu_skin1.mp3        # 皮肤1阵亡语音（可选）
+└── re_lvbu_skin2.mp3        # 皮肤2阵亡语音（可选）
+```
+
+### 步骤3：在游戏中切换皮肤
+
+使用 `player.changeSkin()` 函数切换皮肤：
+
+```javascript
+// 通过技能切换
+player.changeSkin("wushuang", "re_lvbu_skin1");
+
+// 通过武将ID切换
+player.changeSkin({ characterName: "re_lvbu" }, "re_lvbu_skin2");
+
+// 通过当前皮肤切换
+player.changeSkin({ characterSkinName: "re_lvbu_skin1" }, "re_lvbu_skin2");
+
+// 通过位置切换（name1为主将，name2为副将）
+player.changeSkin({ source: "name1" }, "re_lvbu_skin1");
+```
+
+## 三、皮肤定义格式说明
+
+```javascript
+characterSubstitute: {
+    "武将ID": [
+        ["皮肤ID", ["原画路径", "阵亡语音路径"]],
+        ["皮肤ID", ["原画路径", "阵亡语音路径"]],
+    ],
+}
+```
+
+### 格式说明
+
+1. **皮肤ID**: 唯一标识符，建议使用 `武将ID_` 前缀，如 `re_lvbu_skin1`
+2. **原画路径**: 可选，不填则使用默认路径 `image/character/皮肤ID.jpg`
+3. **阵亡语音路径**: 可选，不填则使用默认路径 `audio/die/皮肤ID.mp3`
+
+### 路径引用格式
+
+- `character:xxx` → image/character/xxx.jpg
+- `ext:扩展名/xxx.jpg` → extension/扩展名/xxx.jpg
+- `die:xxx` → audio/die/xxx.mp3
+- `die:ext:扩展名/xxx.mp3` → extension/扩展名/xxx.mp3
+
+## 四、完整示例
+
+### 示例1：简单皮肤
+
+```javascript
+characterSubstitute: {
+    re_lvbu: [
+        ["re_lvbu_skin1", []],  // 使用默认路径
+    ],
+}
+```
+
+需要准备的文件：
+- image/character/re_lvbu_skin1.jpg
+- audio/die/re_lvbu_skin1.mp3（可选）
+
+### 示例2：自定义路径
+
+```javascript
+characterSubstitute: {
+    re_lvbu: [
+        ["re_lvbu_skin1", ["ext:我的扩展/image/skin1.jpg", "die:ext:我的扩展/die/skin1.mp3"]],
+        ["re_lvbu_skin2", ["character:shen_lvbu"]],  // 使用神吕布的原画
+        ["re_lvbu_skin3", ["die:re_lvbu"]],  // 使用原皮的阵亡语音
+    ],
+}
+```
+
+### 示例3：在技能中切换皮肤
+
+```javascript
+skill: {
+    trigger: { player: "phaseUseBegin" },
+    filter: function(event, player) {
+        return player.hasSkill("wushuang");
+    },
+    content: function() {
+        player.changeSkin("wushuang", "re_lvbu_skin1");
+    }
+}
+```
+
+### 示例4：根据条件动态切换
+
+```javascript
+skill: {
+    trigger: { player: "damageEnd" },
+    filter: function(event, player) {
+        return event.num >= 2;
+    },
+    content: function() {
+        const currentSkin = player.skin.name;
+        let nextSkin = "re_lvbu";
+        
+        if (currentSkin === "re_lvbu") {
+            nextSkin = "re_lvbu_skin1";
+        } else if (currentSkin === "re_lvbu_skin1") {
+            nextSkin = "re_lvbu_skin2";
+        } else if (currentSkin === "re_lvbu_skin2") {
+            nextSkin = "re_lvbu";
+        }
+        
+        player.changeSkin({ characterName: "re_lvbu" }, nextSkin);
+    }
+}
+```
+
+## 五、注意事项
+
+1. **定义位置**: 必须在对应武将包的 `index.js` 文件中的 `game.import` 返回对象里添加 `characterSubstitute` 属性
+2. **命名规范**: 皮肤ID建议使用 `武将ID_` 前缀，如 `re_lvbu_skin1`
+3. **文件格式**: 图片支持 jpg、png 等格式，音频支持 mp3 格式
+4. **测试**: 添加皮肤后记得在游戏中测试切换效果
+5. **兼容性**: 这种方式兼容性最好，推荐使用
+
+## 六、快速开始
+
+1. 在 `character/refresh/index.js` 中添加皮肤定义
+2. 准备皮肤图片文件（如 re_lvbu_skin1.jpg）
+3. 将图片放到 `image/character/` 目录下
+4. 在技能或事件中调用 `player.changeSkin()` 切换皮肤
+5. 启动游戏测试效果

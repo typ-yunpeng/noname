@@ -1463,7 +1463,7 @@ const skills = {
 					if (player.countCards("hs", "sha")) {
 						return -0.2;
 					}
-					return get.effect(target, { name: "sha", isCard: true }, player, target);
+					return -get.effect(target, { name: "sha", isCard: true }, player, target);
 				},
 			},
 		},
@@ -6754,6 +6754,102 @@ const skills = {
 						return num + player.getStorage("oljingce_effect").length;
 					},
 				},
+			},
+		},
+	},
+	//OL界徐盛
+	ol_pojun: {
+		audio: 2,
+		trigger: { player: "useCardToPlayered" },
+		direct: true,
+		filter(event, player) {
+			return event.card.name == "sha" && event.target.hp > 0 && event.target.countCards("he") > 0;
+		},
+		content() {
+			"step 0";
+			var next = player.choosePlayerCard(trigger.target, "he", [1, Math.min(trigger.target.hp, trigger.target.countCards("he"))], get.prompt("ol_pojun", trigger.target), "allowChooseAll");
+			next.set("ai", function (button) {
+				if (!_status.event.goon) {
+					return 0;
+				}
+				var val = get.value(button.link);
+				if (button.link == _status.event.target.getEquip(2)) {
+					return 2 * (val + 3);
+				}
+				return val;
+			});
+			next.set("goon", get.attitude(player, trigger.target) <= 0);
+			next.set("forceAuto", true);
+			"step 1";
+			if (result.bool) {
+				event.cards = result.cards;
+				var target = trigger.target;
+				player.logSkill("ol_pojun", trigger.target);
+				player.addTempSkill("ol_pojun_damage");
+				target.addSkill("ol_pojun2");
+				target.addToExpansion(result.cards, "giveAuto", target).gaintag.add("ol_pojun2");
+			} else {
+				event.finish();
+			}
+		},
+		ai: {
+			unequip_ai: true,
+			directHit_ai: true,
+			skillTagFilter(player, tag, arg) {
+				if (get.attitude(player, arg.target) > 0) {
+					return false;
+				}
+				if (tag == "directHit_ai") {
+					return arg.target.hp >= Math.max(1, arg.target.countCards("h") - 1);
+				}
+				if (arg && arg.name == "sha" && arg.target.getEquip(2)) {
+					return true;
+				}
+				return false;
+			},
+		},
+	},
+	ol_pojun_damage: {
+		trigger: { source: "damageBegin1" },
+		sourceSkill: "ol_pojun",
+		filter(event, player) {
+			return event.card && event.card.name == "sha" && event.player.countCards("h") <= player.countCards("h") && event.player.countCards("e") <= player.countCards("e");
+		},
+		charlotte: true,
+		forced: true,
+		async content(event, trigger, player) {
+			trigger.num++;
+		},
+		ai: {
+			damageBonus: true,
+		},
+	},
+	ol_pojun2: {
+		trigger: { global: "phaseEnd" },
+		forced: true,
+		popup: false,
+		charlotte: true,
+		sourceSkill: "ol_pojun",
+		filter(event, player) {
+			return player.getExpansions("ol_pojun2").length > 0;
+		},
+		content() {
+			"step 0";
+			var cards = player.getExpansions("ol_pojun2");
+			player.gain(cards, "draw");
+			game.log(player, "收回了" + get.cnNumber(cards.length) + "张\"破军\"牌");
+			"step 1";
+			player.removeSkill("ol_pojun2");
+		},
+		intro: {
+			markcount: "expansion",
+			mark(dialog, storage, player) {
+				var cards = player.getExpansions("ol_pojun2");
+				if (player.isUnderControl(true)) {
+					dialog.addAuto(cards);
+				} else {
+					return "共有" + get.cnNumber(cards.length) + "张牌";
+				}
 			},
 		},
 	},

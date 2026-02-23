@@ -82,13 +82,13 @@ export class GameEngine implements Game {
   }
 
   /**
-   * 使用指定的武将创建玩家
+   * 使用指定的武将创建玩家（2v2模式）
    */
   createPlayersWithCharacters(characters: any[]): void {
-    // 固定分配身份：1号和4号为队友，2号和3号为敌人
-    // 1号：主公，4号：忠臣（队友）
-    // 2号：反贼，3号：反贼（敌人）
-    const identities: Identity[] = ['zhu', 'fan', 'fan', 'zhong']
+    // 2v2模式：1号和3号为队友（蓝队），2号和4号为敌人（红队）
+    // 1号：主公，3号：忠臣（蓝队队友）
+    // 2号：反贼，4号：反贼（红队敌人）
+    const identities: Identity[] = ['zhu', 'fan', 'zhong', 'fan']
     
     // 创建玩家
     this.players = characters.map((char, index) => {
@@ -102,10 +102,10 @@ export class GameEngine implements Game {
     })
 
     this.state.players = this.players
-    console.log(`创建了 ${this.players.length} 个玩家`)
+    console.log(`创建了 ${this.players.length} 个玩家（2v2模式）`)
     this.players.forEach((player, index) => {
       const position = index + 1
-      const team = (index === 0 || index === 3) ? '队友' : '敌人'
+      const team = (index === 0 || index === 2) ? '蓝队' : '红队'
       console.log(`  ${position}号位置 - ${player.character.name} (${this.getIdentityText(player.identity)}) - ${team}`)
     })
   }
@@ -366,7 +366,7 @@ export class GameEngine implements Game {
   }
 
   /**
-   * 检查游戏是否结束
+   * 检查游戏是否结束（2v2模式）
    */
   checkGameOver(): boolean {
     const alivePlayers = this.players.filter(p => p.status === 'alive')
@@ -376,27 +376,25 @@ export class GameEngine implements Game {
       return true
     }
     
-    // 检查主公是否死亡
-    const zhu = alivePlayers.find(p => p.identity === 'zhu')
-    if (!zhu) {
-      // 主公死亡，反贼获胜
+    // 2v2模式：蓝队（1号和3号）vs 红队（2号和4号）
+    const blueTeamAlive = alivePlayers.filter(p => p.id === 'player_0' || p.id === 'player_2')
+    const redTeamAlive = alivePlayers.filter(p => p.id === 'player_1' || p.id === 'player_3')
+    
+    // 如果蓝队全部死亡，红队获胜
+    if (blueTeamAlive.length === 0) {
       this.state.isGameOver = true
-      this.state.winner = 'fan'
-      console.log('主公死亡，反贼获胜！')
-      this.log('success', '主公死亡，反贼获胜！')
+      this.state.winner = 'fan' // 使用fan代表红队
+      console.log('蓝队全部阵亡，红队获胜！')
+      this.log('success', '蓝队全部阵亡，红队获胜！')
       return true
     }
     
-    // 检查反贼和内奸是否全部死亡
-    const fan = alivePlayers.filter(p => p.identity === 'fan')
-    const nei = alivePlayers.filter(p => p.identity === 'nei')
-    
-    if (fan.length === 0 && nei.length === 0) {
-      // 反贼和内奸全部死亡，主公和忠臣获胜
+    // 如果红队全部死亡，蓝队获胜
+    if (redTeamAlive.length === 0) {
       this.state.isGameOver = true
-      this.state.winner = 'zhu'
-      console.log('反贼和内奸全部死亡，主公和忠臣获胜！')
-      this.log('success', '反贼和内奸全部死亡，主公和忠臣获胜！')
+      this.state.winner = 'zhu' // 使用zhu代表蓝队
+      console.log('红队全部阵亡，蓝队获胜！')
+      this.log('success', '红队全部阵亡，蓝队获胜！')
       return true
     }
     

@@ -29,5 +29,11 @@ game.import("character", function () {
 		perfectPair: { ...perfectPairs },
 		translate: { ...translates, ...voices, ...characterSortTranslate },
 		pinyins: { ...pinyins },
+		characterSubstitute: {
+			re_lvbu: [
+				["re_lvbu_skin1", ["die:re_lvbu"]],  // 皮肤1
+				["re_lvbu_skin2", ["die:re_lvbu"]],  // 皮肤2
+			],
+		},
 	};
 });

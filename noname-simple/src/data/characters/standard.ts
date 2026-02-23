@@ -265,6 +265,7 @@ export const standardCharacters: Omit<Character, 'id'>[] = [
   {
     name: '关羽',
     identity: 'zhong' as Identity,
+    faction: 'shu' as any,
     hp: 4,
     maxHp: 4,
     skills: [skills.wusheng],

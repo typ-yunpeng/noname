@@ -1,0 +1,7 @@
+
+pnpm dev
+启动项目
+
+pnpm build:diff --zip
+
+pnpm build:full --zip

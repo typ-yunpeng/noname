@@ -1,0 +1,67 @@
+# 族杨彪技能修改记录
+
+## 问题描述
+武将 `clan_yangbiao`（族杨彪）的技能 `clanjiannan`（间难）在出牌阶段开始时，会自动摸2张牌，没有给玩家选择的机会。玩家希望改为可以选择是否发动技能。
+
+## 问题原因
+技能定义中使用了 `frequent: true` 属性，该属性会导致技能在满足触发条件时自动发动，不需要玩家确认。
+
+## 修改文件
+- `character/clan/skill.js`
+
+## 修改内容
+
+### 修改前（第1629-1641行）
+```javascript
+//族杨彪
+clanjiannan: {
+    audio: 2,
+    trigger: {
+        player: "phaseUseBegin",
+    },
+    frequent: true,  // ← 这个属性导致技能自动触发
+    async content(event, trigger, player) {
+        const next = player.draw(2);
+        next.gaintag = [event.name];
+        await next;
+        player.addTempSkill("clanjiannan_effect", "phaseChange");
+    },
+```
+
+### 修改后（第1629-1647行）
+```javascript
+//族杨彪
+clanjiannan: {
+    audio: 2,
+    trigger: {
+        player: "phaseUseBegin",
+    },
+    filter(event, player) {  // ← 新增：判断技能是否可发动
+        return true;
+    },
+    async cost(event, trigger, player) {  // ← 新增：让玩家选择是否发动
+        event.result = await player
+            .chooseBool(get.prompt2("clanjiannan"))
+            .set("ai", () => true)
+            .forResult();
+    },
+    async content(event, trigger, player) {
+        const next = player.draw(2);
+        next.gaintag = [event.name];
+        await next;
+        player.addTempSkill("clanjiannan_effect", "phaseChange");
+    },
+```
+
+## 修改说明
+1. **移除 `frequent: true`**：该属性会导致技能自动触发，不需要玩家确认
+2. **添加 `filter` 函数**：用于判断技能是否可发动（这里始终返回true）
+3. **添加 `cost` 函数**：使用 `chooseBool` 方法弹出选择框，让玩家决定是否发动技能
+   - `get.prompt2("clanjiannan")`：显示技能提示信息
+   - `.set("ai", () => true)`：AI默认选择发动技能
+
+## 修改效果
+现在在出牌阶段开始时，系统会弹出选择框询问是否发动"间难"技能，玩家可以选择"确定"摸2张牌，或选择"取消"不发动技能。
+
+## 修改时间
+2026-02-19

@@ -24,7 +24,7 @@ const skills = {
 		},
 		async content(event, trigger, player) {
 			const result = await player
-				.chooseToDiscard(`###${get.translation(event.name)}###弃置手牌中任意张花色数量不为一的牌，并执行等量项`, "h", [1, Infinity], true, "allowChooseAll")
+				.chooseToDiscard(`###${get.translation(event.name)}###弃置手牌中任意张花色数量不为一的牌，并执行等量项`, "h", [0, Infinity], true, "allowChooseAll")
 				.set("filterCard", (card, player) => !get.info("clanqingjue").isOnlySuit(card, player))
 				.forResult();
 			const { cards } = result;
@@ -43,7 +43,7 @@ const skills = {
 										"textbutton",
 									],
 								],
-								true
+								cards.length > 0
 							)
 							.set("ai", button => {
 								if (button.link == "give") {
@@ -1632,7 +1632,15 @@ const skills = {
 		trigger: {
 			player: "phaseUseBegin",
 		},
-		frequent: true,
+		filter(event, player) {
+			return true;
+		},
+		async cost(event, trigger, player) {
+			event.result = await player
+				.chooseBool(get.prompt2("clanjiannan"))
+				.set("ai", () => true)
+				.forResult();
+		},
 		async content(event, trigger, player) {
 			const next = player.draw(2);
 			next.gaintag = [event.name];
@@ -6314,7 +6322,7 @@ const skills = {
 					: await target
 							.chooseToGive(player, "he", num > 0, [Math.min(num2, num), Infinity], "allowChooseAll")
 							.set("ai", get.unuseful)
-							.set("prompt", num > 0 ? "是否交给" + get.translation(player) + "任意张牌" + (cards.length ? "并获得" + get.translation(cards) : "") + "？" : "交给" + get.translation(player) + "至少" + get.cnNumber(num) + "张牌")
+							.set("prompt", num > 0 ? "是否交给" + get.translation(player) + "至少" + get.cnNumber(num) + "张牌" + (cards.length ? "并获得" + get.translation(cards) : "") + "？" : "交给" + get.translation(player) + "至少" + get.cnNumber(num) + "张牌")
 							.forResult();
 			if (!result?.bool || !result.cards?.length || !cards.length) {
 				return;

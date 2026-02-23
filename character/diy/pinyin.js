@@ -1,2 +1,3 @@
-const pinyins = {};
+const pinyins = {
+};
 export default pinyins;

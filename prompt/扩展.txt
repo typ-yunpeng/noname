@@ -1,0 +1,262 @@
+# 无名杀扩展导入指南
+
+## 一、扩展目录结构
+
+扩展必须放在 `extension/` 目录的根目录下，与其他扩展平级：
+
+```
+extension/
+├── 十周年UI/
+│   ├── extension.js
+│   └── ...
+└── 你的扩展名/         ← 必须和十周年UI平级，不能放在其他扩展目录里
+    ├── extension.js   ← 必需文件
+    ├── info.json     ← 可选（推荐）
+    ├── character/    ← 武将图片
+    ├── audio/        ← 音频文件
+    └── ...
+```
+
+## 二、导入扩展的方式
+
+### 方式1：自动导入（推荐，仅PC版和手机版）
+
+**适用环境：**
+- ✅ Electron版（PC客户端）
+- ✅ Cordova版（手机客户端）
+- ❌ 网页版（不支持）
+
+**步骤：**
+1. 将扩展文件夹解压到 `extension/` 目录下
+2. 确保扩展目录包含 `extension.js` 或 `extension.ts` 文件
+3. 开启"自动导入扩展"选项（见下方）
+4. 重启游戏
+5. 在"扩展"菜单中手动开启扩展
+
+**注意：** 自动导入的扩展默认是关闭状态，需要手动开启。
+
+### 方式2：通过UI界面导入（所有版本）
+
+**步骤：**
+1. 打开游戏
+2. 点击"扩展"菜单
+3. 选择"获取扩展"
+4. 点击"导入扩展"
+5. 选择扩展的zip文件
+6. 等待导入完成
+7. 重启游戏
+
+### 方式3：通过URL参数导入
+
+**步骤：**
+在游戏URL后添加参数：
+```
+http://你的游戏地址/?importExtensionName=扩展名
+```
+
+### 方式4：通过控制台手动导入
+
+**步骤：**
+1. 打开浏览器控制台（按F12）
+2. 执行以下代码：
+```javascript
+lib.config.extensions.add("你的扩展名");
+game.saveConfig("extensions", lib.config.extensions);
+game.saveConfig("extension_你的扩展名_enable", true);
+location.reload();
+```
+
+## 三、如何开启自动导入
+
+### 方法1：通过游戏UI界面（推荐）
+
+1. 打开游戏
+2. 点击"选项"菜单
+3. 选择"通用"选项卡
+4. 找到"自动导入扩展"选项
+5. 点击开启
+
+### 方法2：通过浏览器控制台
+
+```javascript
+game.saveConfig("extension_auto_import", true);
+location.reload();
+```
+
+### 方法3：直接修改localStorage
+
+```javascript
+localStorage.setItem("noname_extension_auto_import", "true");
+location.reload();
+```
+
+## 四、验证扩展是否加载成功
+
+### 1. 检查扩展是否被识别
+
+在浏览器控制台执行：
+```javascript
+console.log(lib.config.extensions);
+```
+
+如果看到你的扩展名在数组中，说明已被识别。
+
+### 2. 检查扩展是否开启
+
+```javascript
+console.log(lib.config.extension_你的扩展名_enable);
+```
+
+如果返回 `true`，说明扩展已开启。
+
+### 3. 检查扩展是否加载完成
+
+```javascript
+console.log(_status.extensionLoaded);
+```
+
+如果看到你的扩展名在数组中，说明扩展已加载完成。
+
+## 五、常见问题
+
+### Q1: 解压到extension目录后为什么不加载？
+
+**A:** 检查以下几点：
+1. 是否开启了"自动导入扩展"选项
+2. 是否有文件系统权限（网页版不支持）
+3. 扩展目录是否包含 `extension.js` 或 `extension.ts` 文件
+4. 扩展是否放在了正确的位置（必须和十周年UI等扩展平级）
+5. 是否重启了游戏
+
+### Q2: 扩展被识别了但为什么没有生效？
+
+**A:** 扩展默认是关闭状态，需要：
+1. 打开"扩展"菜单
+2. 找到你的扩展
+3. 点击"开启"按钮
+4. 重启游戏
+
+### Q3: 网页版如何导入扩展？
+
+**A:** 网页版不支持自动导入，只能通过：
+1. UI界面导入（扩展→获取扩展→导入扩展）
+2. URL参数导入
+3. 控制台手动导入
+
+### Q4: 扩展加载失败怎么办？
+
+**A:** 
+1. 检查控制台是否有错误信息
+2. 确认扩展文件格式正确
+3. 尝试删除扩展后重新导入
+4. 如果扩展导致游戏无法启动，可以在控制台执行：
+```javascript
+window.resetExtension();
+```
+这会禁用所有扩展。
+
+### Q5: 如何删除扩展？
+
+**A:** 
+1. 打开"扩展"菜单
+2. 找到要删除的扩展
+3. 点击"删除此扩展"
+4. 确认删除
+
+或在控制台执行：
+```javascript
+game.removeExtension("扩展名");
+```
+
+## 六、扩展开发注意事项
+
+1. **必需文件：** `extension.js` 或 `extension.ts`
+2. **推荐文件：** `info.json`（包含扩展信息）
+3. **图片路径：** 使用 `ext:扩展名/文件名.jpg` 格式
+4. **音频路径：** 使用 `die:ext:扩展名/文件名.mp3` 格式
+5. **配置项：** 使用 `extension_扩展名_配置项` 格式
+6. **生命周期：** precontent → prepare → content → arenaReady
+
+## 七、扩展配置示例
+
+```javascript
+export const type = "extension";
+export default function() {
+    return {
+        name: "扩展名称",
+        editable: true,
+        
+        // 游戏数据加载之前执行（联机模式亦可加载）
+        precontent(config) {
+            // 添加模式等基础功能
+        },
+        
+        // 所有扩展加载之后执行
+        prepare() {
+            // 准备工作
+        },
+        
+        // 游戏数据加载之后、界面加载之前执行
+        content(config, pack) {
+            // 主要内容：添加武将、卡牌、技能等
+        },
+        
+        // 游戏界面创建之后执行
+        arenaReady() {
+            // UI相关初始化
+        },
+        
+        // 扩展配置
+        config: {
+            enable: {
+                name: "开启",
+                init: true,
+            },
+            customOption: {
+                name: "自定义选项",
+                init: false,
+                onclick(bool) {
+                    // 选项点击事件
+                }
+            }
+        },
+        
+        // 扩展包信息
+        package: {
+            character: {
+                // 武将定义
+            },
+            card: {
+                // 卡牌定义
+            },
+            skill: {
+                // 技能定义
+            },
+            translate: {
+                // 翻译
+            },
+            intro: "扩展介绍",
+            author: "作者",
+            version: "1.0.0"
+        },
+        
+        // 帮助文档
+        help: {
+            // 帮助内容
+        }
+    };
+};
+```
+
+## 八、快速参考
+
+| 操作 | 命令 |
+|------|------|
+| 开启自动导入 | `game.saveConfig("extension_auto_import", true)` |
+| 添加扩展 | `lib.config.extensions.add("扩展名")` |
+| 开启扩展 | `game.saveConfig("extension_扩展名_enable", true)` |
+| 删除扩展 | `game.removeExtension("扩展名")` |
+| 重置所有扩展 | `window.resetExtension()` |
+| 查看已识别扩展 | `console.log(lib.config.extensions)` |
+| 查看已加载扩展 | `console.log(_status.extensionLoaded)` |
+| 查看扩展配置 | `console.log(lib.config.extension_扩展名_enable)` |

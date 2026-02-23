@@ -52,6 +52,7 @@ export default {
 	ol_sb_dengai: "曜威奋武",
 	ol_sb_gongsunzan: "辽海龙吟",
 	ol_guohuai: "垂问秦雍",
+	ol_xusheng: "江东之壁",
 	ol_fuhuanghou: "巾帼拚生",
 	ol_sb_zhangrang: "侵威乱天常",
 	ol_sb_wenchou: "万夫之勇",

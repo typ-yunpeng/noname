@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noname Game UI</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="window">
+        <div id="system">
+            <div>
+                <div class="menubutton">系统</div>
+                <div class="menubutton">设置</div>
+                <div class="menubutton">帮助</div>
+            </div>
+        </div>
+        
+        <div id="arena" data-number="4">
+            <div id="arenalog">
+                <div>游戏开始</div>
+            </div>
+            
+            <div id="roundmenu" class="roundarenabutton menubutton round">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+            
+            <!-- 玩家1 (位置1) -->
+            <div class="player" data-position="1">
+                <div class="avatar" style="background-image: url('https://via.placeholder.com/130x160/4a90e2/ffffff?text=玩家1');"></div>
+                <div class="hp">
+                    <div class="lost"></div>
+                    <div class="lost"></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div class="identity" data-color="zhu">
+                    <div>主</div>
+                </div>
+                <div class="name">刘备</div>
+                <div class="equips">
+                    <div class="equip1 card">
+                        <div class="background">青</div>
+                    </div>
+                    <div class="equip2 card">
+                        <div class="background">青</div>
+                    </div>
+                    <div class="equip3 card">
+                        <div class="background">青</div>
+                    </div>
+                    <div class="equip4 card">
+                        <div class="background">青</div>
+                    </div>
+                </div>
+                <div class="judges">
+                    <div class="card">
+                        <div class="background">乐</div>
+                    </div>
+                </div>
+                <div class="marks">
+                    <div class="card">
+                        <div class="background">标</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 玩家2 (位置2) -->
+            <div class="player" data-position="2">
+                <div class="avatar" style="background-image: url('https://via.placeholder.com/130x160/e74c3c/ffffff?text=玩家2');"></div>
+                <div class="hp">
+                    <div class="lost"></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div class="identity" data-color="fan">
+                    <div>反</div>
+                </div>
+                <div class="name">曹操</div>
+                <div class="equips">
+                    <div class="equip1 card">
+                        <div class="background">青</div>
+                    </div>
+                    <div class="equip2 card">
+                        <div class="background">青</div>
+                    </div>
+                </div>
+                <div class="judges"></div>
+                <div class="marks"></div>
+            </div>
+            
+            <!-- 玩家3 (位置3) -->
+            <div class="player" data-position="3">
+                <div class="avatar" style="background-image: url('https://via.placeholder.com/130x160/2ecc71/ffffff?text=玩家3');"></div>
+                <div class="hp">
+                    <div class="lost"></div>
+                    <div class="lost"></div>
+                    <div class="lost"></div>
+                    <div></div>
+                </div>
+                <div class="identity" data-color="zhong">
+                    <div>忠</div>
+                </div>
+                <div class="name">孙权</div>
+                <div class="equips">
+                    <div class="equip1 card">
+                        <div class="background">青</div>
+                    </div>
+                </div>
+                <div class="judges"></div>
+                <div class="marks"></div>
+            </div>
+            
+            <!-- 玩家0 (自己) -->
+            <div id="me">
+                <div class="player" data-position="0">
+                    <div class="avatar" style="background-image: url('https://via.placeholder.com/130x160/9b59b6/ffffff?text=我');"></div>
+                    <div class="hp">
+                        <div class="lost"></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                    <div class="identity" data-color="zhu">
+                        <div>主</div>
+                    </div>
+                    <div class="name">关羽</div>
+                    <div class="equips">
+                        <div class="equip1 card">
+                            <div class="background">青</div>
+                        </div>
+                        <div class="equip2 card">
+                            <div class="background">青</div>
+                        </div>
+                        <div class="equip3 card">
+                            <div class="background">青</div>
+                        </div>
+                    </div>
+                    <div class="judges"></div>
+                    <div class="marks"></div>
+                </div>
+                
+                <div id="handcards1" class="handcards">
+                    <div class="card">
+                        <div class="background">杀</div>
+                        <div class="name">杀</div>
+                        <div class="info">♠</div>
+                    </div>
+                    <div class="card">
+                        <div class="background">闪</div>
+                        <div class="name">闪</div>
+                        <div class="info">♥</div>
+                    </div>
+                    <div class="card">
+                        <div class="background">桃</div>
+                        <div class="name">桃</div>
+                        <div class="info">♦</div>
+                    </div>
+                    <div class="card">
+                        <div class="background">杀</div>
+                        <div class="name">杀</div>
+                        <div class="info">♣</div>
+                    </div>
+                    <div class="card">
+                        <div class="background">闪</div>
+                        <div class="name">闪</div>
+                        <div class="info">♠</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="mebg"></div>
+        </div>
+        
+        <div id="historybar" class="shadowed">
+            <div>
+                <div class="avatar">
+                    <div class="avatarbg" style="background-image: url('https://via.placeholder.com/42x42/4a90e2/ffffff?text=刘');"></div>
+                    <div>刘</div>
+                </div>
+            </div>
+            <div>
+                <div class="card">
+                    <div class="background">杀</div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="time">
+            <div>回合: 1</div>
+            <div>时间: 00:00</div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

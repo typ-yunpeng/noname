@@ -1,0 +1,79 @@
+# 添加OL界徐盛角色修改总结
+
+## 修改的文件（共8个）：
+
+1. **character/onlyOL/character.js**
+   - 添加角色定义：ol_xusheng
+   - 设置属性：男性、吴势力、4体力、技能["ol_pojun"]、名字"徐|盛"
+
+2. **character/onlyOL/skill.js**
+   - 添加ol_pojun技能：使用【杀】指定目标后，可移出目标至多X张牌（X为体力值）
+   - 添加ol_pojun2技能：回合结束时收回移出的牌
+   - 包含伤害加成：当目标手牌+装备牌数≤使用者时，伤害+1
+
+3. **character/onlyOL/translate.js**
+   - 添加角色翻译：ol_xusheng: "OL界徐盛"
+   - 添加前缀：ol_xusheng_prefix: "OL界"
+   - 添加技能翻译：ol_pojun: "破军"
+   - 添加技能描述：ol_pojun_info
+
+4. **character/onlyOL/sort.js**
+   - 将ol_xusheng添加到onlyOL_yijiang3分组（OL专属·将3）
+
+5. **character/onlyOL/intro.js**
+   - 添加角色介绍：徐盛的历史背景和事迹
+
+6. **character/onlyOL/pinyin.js**
+   - 添加拼音：ol_xusheng: "xu sheng"
+
+7. **character/onlyOL/voices.js**
+   - 添加技能语音：#ol_pojun1、#ol_pojun2
+   - 添加阵亡语音：#ol_xusheng:die
+
+8. **character/onlyOL/characterTitle.js**
+   - 添加称号：ol_xusheng: "江东之壁"
+
+## 修改步骤：
+1. 在character.js中定义角色基本信息
+2. 在skill.js中实现技能逻辑（触发、过滤、内容、AI）
+3. 在translate.js中添加中文翻译和技能描述
+4. 在sort.js中将角色添加到对应分组
+5. 在intro.js中添加角色历史介绍
+6. 在pinyin.js中添加拼音用于搜索
+7. 在voices.js中添加语音台词
+8. 在characterTitle.js中添加角色称号
+
+## 角色技能【破军】：
+当你使用【杀】指定目标后，你可以将其至多X张牌移出游戏直到回合结束（X为其体力值）。你使用的【杀】对手牌区与装备区内牌数皆小于等于你的角色造成的伤害+1。
+
+## 添加默认皮肤：
+
+### 步骤：
+1. 准备图片文件：将角色图片（如 ol_xusheng.jpg）放到 image/character 目录下
+2. 修改角色配置：在 character/onlyOL/character.js 中的角色定义里添加 img 属性
+
+### 示例：
+```javascript
+ol_xusheng: {
+    sex: "male",
+    group: "wu",
+    hp: 4,
+    skills: ["ol_pojun"],
+    names: "徐|盛",
+    img: "image/character/ol_xusheng.jpg",  // 添加这一行
+},
+```
+
+### 注意事项：
+- 图片文件名建议与角色ID保持一致（如 ol_xusheng.jpg）
+- 图片格式必须是 .jpg
+- 图片路径必须是 "image/character/文件名.jpg"
+- 如果不指定 img 属性，游戏会使用默认的占位图
+
+## 注意事项：
+- 所有修改均在onlyOL包中完成
+- 角色ID命名规则：ol_xusheng（ol_前缀表示OL专属）
+- 技能ID命名规则：ol_pojun（与角色ID前缀保持一致）
+- 需要修改8个文件才能完整添加一个角色
+- 修改完成后可以在游戏中选择该角色
+- 添加皮肤需要额外准备图片文件并修改 character.js

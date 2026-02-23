@@ -2135,6 +2135,7 @@ const skills = {
 		targetprompt: ["先出杀", "后出杀"],
 		selectTarget: 2,
 		multitarget: true,
+		complexSelect: true,
 		async content(event, trigger, player) {
 			const useCardEvent = event.targets[1].useCard({ name: "juedou", isCard: true }, "nowuxie", event.targets[0], "noai");
 			useCardEvent.animate = false;
