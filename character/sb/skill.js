@@ -1817,9 +1817,9 @@ const skills = {
 						if (player == target || target == get.event().targetx) {
 							return false;
 						}
-						const dist = get.distance(player, target);
+						const dist = get.distance(target, player);
 						if (dist > 1) {
-							if (game.hasPlayer(current => current != player && get.distance(player, current) < dist)) {
+							if (game.hasPlayer(current => current != player && current != target && get.distance(current, player) < dist)) {
 								return false;
 							}
 						}

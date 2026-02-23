@@ -6272,11 +6272,11 @@ const skills = {
 						if (player == target) {
 							return false;
 						}
-						var dist = get.distance(player, target);
+						var dist = get.distance(target, player);
 						if (dist > 1) {
 							if (
 								game.hasPlayer(function (current) {
-									return current != player && get.distance(player, current) < dist;
+									return current != player && current != target && get.distance(current, player) < dist;
 								})
 							) {
 								return false;
