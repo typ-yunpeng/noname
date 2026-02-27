@@ -7454,12 +7454,9 @@ const skills = {
 		},
 		async content(event, trigger, player) {
 			const [target] = event.targets;
-			// 使用 target.judging[0] 作为判定牌，而不是从牌堆随机获取
-			const judgeCard = target.judging[0];
-			if (!judgeCard) {
-				return;
-			}
-			const next = target.judge(judgeCard);
+			// 先创建判定事件（不传入参数，这样会从牌堆摸牌）
+			const next = target.judge();
+			// 设置判定逻辑
 			next.judge = function (card) {
 				const suit = get.suit(card);
 				if (suit == "spade") {
@@ -7473,7 +7470,10 @@ const skills = {
 			next.judge2 = function (result) {
 				return result.bool == false;
 			};
+			// 等待判定完成（期间 uidao 可以修改判定牌）
+			// forResult() 返回的结果中包含 suit，是判定完成时的花色
 			const { suit } = await next.forResult();
+			// 使用判定结果中的花色（可能是 uidao 修改后的花色）
 			if (suit == "club") {
 				await player.recover();
 				await target.damage("thunder");
