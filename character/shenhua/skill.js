@@ -7454,7 +7454,13 @@ const skills = {
 		},
 		async content(event, trigger, player) {
 			const [target] = event.targets;
-			const next = target.judge(function (card) {
+			// 使用 target.judging[0] 作为判定牌，而不是从牌堆随机获取
+			const judgeCard = target.judging[0];
+			if (!judgeCard) {
+				return;
+			}
+			const next = target.judge(judgeCard);
+			next.judge = function (card) {
 				const suit = get.suit(card);
 				if (suit == "spade") {
 					return -4;
@@ -7463,9 +7469,9 @@ const skills = {
 					return -2;
 				}
 				return 0;
-			});
+			};
 			next.judge2 = function (result) {
-				return result.bool == false; // ? true : false; 喵？
+				return result.bool == false;
 			};
 			const { suit } = await next.forResult();
 			if (suit == "club") {
