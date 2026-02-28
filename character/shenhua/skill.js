@@ -7454,31 +7454,54 @@ const skills = {
 		},
 		async content(event, trigger, player) {
 			const [target] = event.targets;
-			// 先创建判定事件（不传入参数，这样会从牌堆摸牌）
-			const next = target.judge();
-			// 设置判定逻辑
-			next.judge = function (card) {
-				const suit = get.suit(card);
-				if (suit == "spade") {
-					return -4;
+			const judgeEvent = target.judge(result => {
+				let realCard = result.card || result;
+				
+				// 引擎判定牌可能未正确同步，强制读取被鬼道等技能替换放入的最新卡牌
+				if (judgeEvent.orderingCards && judgeEvent.orderingCards.length > 0) {
+					realCard = judgeEvent.orderingCards[judgeEvent.orderingCards.length - 1];
 				}
-				if (suit == "club") {
-					return -2;
+
+				let suit = get.suit(realCard) || realCard.suit || result.suit;
+				
+				if (!suit || suit === "none") {
+					if (realCard.name && typeof realCard.name === "string") {
+						suit = get.suit(realCard);
+					}
 				}
+
+				if (suit === "spade") return -4;
+				if (suit === "club") return 4;
 				return 0;
-			};
-			next.judge2 = function (result) {
-				return result.bool == false;
-			};
-			// 等待判定完成（期间 uidao 可以修改判定牌）
-			// forResult() 返回的结果中包含 suit，是判定完成时的花色
-			const { suit } = await next.forResult();
-			// 使用判定结果中的花色（可能是 uidao 修改后的花色）
-			if (suit == "club") {
+			}).set("judgestr", "雷击");
+			
+			const judgeResult = await judgeEvent.forResult();
+			
+			// 兜底提取最终花色
+			let finalCard = judgeResult.card || judgeResult;
+			if (judgeEvent.orderingCards && judgeEvent.orderingCards.length > 0) {
+				finalCard = judgeEvent.orderingCards[judgeEvent.orderingCards.length - 1];
+			}
+			
+			let finalSuit = get.suit(finalCard) || finalCard.suit || judgeResult.suit;
+			
+			// 游戏内强制将 +J 等改判后的牌重新识别花色，防解包失效
+			if (!finalSuit || finalSuit === "none") {
+				if (finalCard.name && typeof finalCard.name === "string") {
+					finalSuit = get.suit(finalCard);
+				}
+			}
+			console.log("test.");
+			console.log(finalSuit);
+			console.log(judgeResult.judge);
+			console.log("test.");
+			if (finalSuit === "club") {
+				console.log('club fenzhi');
 				await player.recover();
-				await target.damage("thunder");
-			} else if (suit == "spade") {
-				await target.damage(2, "thunder");
+				await target.damage(1, "thunder", player);
+			} else if (finalSuit === "spade") {
+				console.log('spade fenzhi');
+				await target.damage(2, "thunder", player);
 			}
 		},
 		ai: {
@@ -8216,7 +8239,23 @@ const skills = {
 			return get.suit(event.player.judging[0], event.player) == "heart";
 		},
 		async cost(event, trigger, player) {
-			const str = "红颜：" + get.translation(trigger.player) + "的" + (trigger.judgestr || "") + "判定为" + get.translation(trigger.player.judging[0]) + "，请将其改为一种花色";
+			// 引擎兼容：多维探测真正的判定牌（有的内核judging[0]变成了锦囊源，有的用judgeCard或result.card）
+			const judgingArr = trigger.player.judging || [];
+			const jCard = (trigger.result && trigger.result.card)
+						|| trigger.judgeCard
+						|| judgingArr[judgingArr.length - 1]
+						|| trigger.card;
+
+			let cardStr = "未知";
+			if (jCard) {
+				const suit = get.translation(jCard.suit) || "";
+				const num = jCard.number || "";
+				const name = get.translation(jCard.name) || jCard.name || "";
+				cardStr = `${suit}${num}${name}`;
+				if (!cardStr) cardStr = "空(无名称)";
+			}
+			
+			const str = "红颜：" + get.translation(trigger.player) + "的" + (trigger.judgestr || "") + "判定为" + cardStr + "，请将其改为一种花色";
 			const { control } = await player
 				.chooseControl("spade", "heart", "diamond", "club")
 				.set("prompt", str)
@@ -8658,8 +8697,28 @@ const skills = {
 			return player.countCards("hes", { color: "black" }) > 0;
 		},
 		async cost(event, trigger, player) {
+			console.log('guidao.');
+			console.log(trigger);
+			console.log(trigger.player);
+			console.log('guidao.');
+			// 引擎兼容：多维探测真正的判定牌
+			const judgingArr = trigger.player.judging || [];
+			const jCard = (trigger.result && trigger.result.card)
+						|| trigger.judgeCard
+						|| judgingArr[judgingArr.length - 1]
+						|| trigger.card;
+
+			let cardStr = "未知";
+			if (jCard) {
+				const suit = get.translation(jCard.suit) || "";
+				const num = jCard.number || "";
+				const name = get.translation(jCard.name) || jCard.name || "";
+				cardStr = `${suit}${num}${name}`;
+				if (!cardStr) cardStr = "空(无名称)";
+			}
+			
 			event.result = await player
-				.chooseCard(`${get.translation(trigger.player)}的${trigger.judgestr || ""}判定为${get.translation(trigger.player.judging[0])}，${get.prompt(event.skill)}`, "hes", card => {
+				.chooseCard(`${get.translation(trigger.player)}的${trigger.judgestr || ""}判定为${cardStr}，${get.prompt(event.skill)}`, "hes", card => {
 					const player = get.player();
 					if (get.color(card) !== "black") {
 						return false;

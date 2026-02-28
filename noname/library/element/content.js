@@ -13108,6 +13108,7 @@ player.removeVirtualEquip(card);
 	},
 	judge: [
 		async (event, trigger, player) => {
+			game.log("判定内容第一个函数开始执行");
 			const judgestr = `${get.translation(player)}的${event.judgestr}判定`;
 			event.videoId = lib.status.videoId++;
 			let cardj = event.directresult;
@@ -13181,10 +13182,23 @@ player.removeVirtualEquip(card);
 				color: get.color(player.judging[0]),
 				node: event.node,
 			};
+			game.log("判定事件 fixedResult：", event.fixedResult, "类型：", typeof event.fixedResult);
 			if (event.fixedResult) {
-				for (var i in event.fixedResult) {
-					event.result[i] = event.fixedResult[i];
+				if (typeof event.fixedResult === "function") {
+					game.log("调用 fixedResult 函数");
+					var fixedResultObj = event.fixedResult(event, player);
+					game.log("fixedResult 返回：", fixedResultObj);
+					for (var i in fixedResultObj) {
+						event.result[i] = fixedResultObj[i];
+					}
+				} else {
+					game.log("fixedResult 是对象，遍历并赋值");
+					for (var i in event.fixedResult) {
+						event.result[i] = event.fixedResult[i];
+					}
 				}
+			} else {
+				game.log("fixedResult 不存在或为 falsy");
 			}
 			event.result.judge = event.judge(event.result);
 			if (event.result.judge > 0) {
