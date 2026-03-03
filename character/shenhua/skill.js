@@ -673,16 +673,18 @@ const skills = {
 			mark(dialog, content, player) {
 				var cards = player.getExpansions("zhengrong");
 				if (cards && cards.length) {
-					if (window.isNonameServer || lib.config.mode === 'connect' || lib.device == 'mobile') {
-						for (var i = 0; i < cards.length; i++) {
-							dialog.addText(get.translation(cards[i]) + ' ' + get.translation(cards[i].suit) + ' ' + cards[i].number);
-						}
-					} else {
-						dialog.addAuto(cards);
+					dialog.addText("共 " + cards.length + " 张牌：");
+					for (var i = 0; i < cards.length; i++) {
+						dialog.addText(get.translation(cards[i]) + " " + get.translation(cards[i].suit) + " " + cards[i].number);
 					}
 				}
 			},
-			content: "expansion",
+			content(content, player) {
+				var cards = player.getExpansions("zhengrong");
+				if (cards && cards.length) {
+					return cards.map(c => get.translation(c) + ' ' + get.translation(c.suit) + ' ' + c.number).join('<br>');
+				}
+			},
 			onunmark(storage, player) {
 				if (player.hasSkill("zhengrong") && player.getExpansions("zhengrong").length > 0) return false;
 			},
