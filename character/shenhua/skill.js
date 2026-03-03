@@ -670,17 +670,7 @@ const skills = {
 		marktext: "荣",
 		intro: {
 			markcount: "expansion",
-			mark(dialog, storage, player) {
-				var cards = player.getExpansions("zhengrong");
-				if (cards && cards.length) {
-					dialog.addText("共 " + cards.length + " 张牌");
-					dialog.addAuto(cards);
-				}
-			},
-			content: "cards",
-			onunmark(storage, player) {
-				if (player.hasSkill("zhengrong") && player.getExpansions("zhengrong").length > 0) return false;
-			},
+			content: "expansion",
 		},
 	},
 	hongju: {
@@ -813,8 +803,8 @@ const skills = {
 	drlt_zhenrong: {
 		marktext: "荣",
 		intro: {
-			content: "expansion",
 			markcount: "expansion",
+			content: "expansion",
 		},
 		audio: 2,
 		trigger: { source: "damageSource" },
