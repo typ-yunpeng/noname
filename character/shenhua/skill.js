@@ -676,12 +676,6 @@ const skills = {
 					dialog.addAuto(content);
 				}
 			},
-			content(content, player) {
-				var content = player.getExpansions("zhengrong");
-				if (content && content.length) {
-					return content;
-				}
-			},
 		},
 	},
 	hongju: {
