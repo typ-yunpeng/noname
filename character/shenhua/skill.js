@@ -669,8 +669,8 @@ const skills = {
 		},
 		marktext: "荣",
 		intro: {
-			markcount: "expansion",
 			content: "expansion",
+			markcount: "expansion",
 		},
 	},
 	hongju: {
@@ -803,8 +803,8 @@ const skills = {
 	drlt_zhenrong: {
 		marktext: "荣",
 		intro: {
-			markcount: "expansion",
 			content: "expansion",
+			markcount: "expansion",
 		},
 		audio: 2,
 		trigger: { source: "damageSource" },
