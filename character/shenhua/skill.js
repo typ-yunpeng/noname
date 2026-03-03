@@ -669,19 +669,8 @@ const skills = {
 		},
 		marktext: "荣",
 		intro: {
+			content: "expansion",
 			markcount: "expansion",
-			mark(dialog, content, player) {
-				var cards = player.getExpansions("zhengrong");
-				if (cards && cards.length) {
-					dialog.addAuto(cards);
-				}
-			},
-			content(content, player) {
-				var cards = player.getExpansions("zhengrong");
-				if (cards && cards.length) {
-					return cards;
-				}
-			},
 		},
 	},
 	hongju: {
