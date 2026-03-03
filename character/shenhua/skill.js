@@ -673,19 +673,13 @@ const skills = {
 			mark(dialog, content, player) {
 				var cards = player.getExpansions("zhengrong");
 				if (cards && cards.length) {
-					if (lib.config.mode === 'connect' || lib.config.mode === 'online' || lib.device === 'mobile' || (window.navigator && window.navigator.userAgent && /Mobile|Android|iPhone/i.test(window.navigator.userAgent))) {
-						dialog.addAuto(cards);
-						dialog.addText('</br>');
-						dialog.addSmall(cards);
-					} else {
-						dialog.addAuto(cards);
-					}
+					dialog.addSmall(cards);
 				}
 			},
 			content(content, player) {
 				var cards = player.getExpansions("zhengrong");
 				if (cards && cards.length) {
-					return cards;
+					return get.translation(cards);
 				}
 			},
 		},
