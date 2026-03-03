@@ -670,21 +670,14 @@ const skills = {
 		marktext: "荣",
 		intro: {
 			markcount: "expansion",
-			mark(dialog, content, player) {
+			mark(dialog, storage, player) {
 				var cards = player.getExpansions("zhengrong");
 				if (cards && cards.length) {
-					dialog.addText("共 " + cards.length + " 张牌：");
-					for (var i = 0; i < cards.length; i++) {
-						dialog.addText(get.translation(cards[i]) + " " + get.translation(cards[i].suit) + " " + cards[i].number);
-					}
+					dialog.addText("共 " + cards.length + " 张牌");
+					dialog.addAuto(cards);
 				}
 			},
-			content(content, player) {
-				var cards = player.getExpansions("zhengrong");
-				if (cards && cards.length) {
-					return cards.map(c => get.translation(c) + ' ' + get.translation(c.suit) + ' ' + c.number).join('<br>');
-				}
-			},
+			content: "cards",
 			onunmark(storage, player) {
 				if (player.hasSkill("zhengrong") && player.getExpansions("zhengrong").length > 0) return false;
 			},
