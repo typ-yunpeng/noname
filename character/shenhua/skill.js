@@ -671,22 +671,22 @@ const skills = {
 		intro: {
 			markcount: "expansion",
 			mark(dialog, content, player) {
-				var content = player.getExpansions("zhengrong");
-				if (content && content.length) {
+				var cards = player.getExpansions("zhengrong");
+				if (cards && cards.length) {
 					if (player == game.me || player.isUnderControl()) {
-						dialog.addAuto(content);
+						dialog.addAuto(cards);
 					} else {
-						return "共有" + get.cnNumber(content.length) + "张荣";
+						return "共有" + get.cnNumber(cards.length) + "张荣";
 					}
 				}
 			},
 			content(content, player) {
-				var content = player.getExpansions("zhengrong");
-				if (content && content.length) {
+				var cards = player.getExpansions("zhengrong");
+				if (cards && cards.length) {
 					if (player == game.me || player.isUnderControl()) {
-						return content;
+						return cards;
 					} else {
-						return "共有" + get.cnNumber(content.length) + "张荣";
+						return "共有" + get.cnNumber(cards.length) + "张荣";
 					}
 				}
 			},

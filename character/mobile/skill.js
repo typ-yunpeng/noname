@@ -23778,6 +23778,16 @@ const skills = {
 		intro: {
 			content: "expansion",
 			markcount: "expansion",
+			mark(dialog, content, player) {
+				var content = player.getExpansions("rezhengrong");
+				if (content && content.length) {
+					if (player == game.me || player.isUnderControl()) {
+						dialog.addAuto(content);
+					} else {
+						return "共有" + get.cnNumber(content.length) + "张荣";
+					}
+				}
+			},
 		},
 	},
 	rehongju: {
