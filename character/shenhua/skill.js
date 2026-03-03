@@ -673,7 +673,21 @@ const skills = {
 			mark(dialog, content, player) {
 				var content = player.getExpansions("zhengrong");
 				if (content && content.length) {
-					dialog.addAuto(content);
+					if (player == game.me || player.isUnderControl()) {
+						dialog.addAuto(content);
+					} else {
+						return "共有" + get.cnNumber(content.length) + "张荣";
+					}
+				}
+			},
+			content(content, player) {
+				var content = player.getExpansions("zhengrong");
+				if (content && content.length) {
+					if (player == game.me || player.isUnderControl()) {
+						return content;
+					} else {
+						return "共有" + get.cnNumber(content.length) + "张荣";
+					}
 				}
 			},
 		},

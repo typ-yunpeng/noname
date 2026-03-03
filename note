@@ -2,7 +2,7 @@
 pnpm dev
 启动项目
 
-git tag -a v1.11.6 -m "发布版本1.11.6"
+git tag -a v1.11.9 -m "发布版本1.11.9"
 pnpm build:diff --zip
 
 pnpm build:full --zip
