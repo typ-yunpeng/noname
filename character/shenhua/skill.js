@@ -673,14 +673,12 @@ const skills = {
 			mark(dialog, content, player) {
 				var cards = player.getExpansions("zhengrong");
 				if (cards && cards.length) {
-					dialog.addSmall(cards);
+					dialog.addAuto(cards);
 				}
 			},
-			content(content, player) {
-				var cards = player.getExpansions("zhengrong");
-				if (cards && cards.length) {
-					return get.translation(cards);
-				}
+			content: "expansion",
+			onunmark(storage, player) {
+				if (player.hasSkill("zhengrong") && player.getExpansions("zhengrong").length > 0) return false;
 			},
 		},
 	},
