@@ -681,15 +681,16 @@ const skills = {
 					container.style.width = "100%";
 					container.style.height = "100%";
 					container.style.zIndex = "10000";
-					container.style.backgroundColor = "rgba(0, 0, 0, 0.5)"; // 添加半透明遮罩
+					container.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
 					
 					var dialog = document.createElement("div");
 					dialog.style.position = "absolute";
 					dialog.style.left = "50%";
 					dialog.style.top = "50%";
 					dialog.style.transform = "translate(-50%, -50%)";
-					dialog.style.width = "300px";
-					dialog.style.height = "200px";
+					dialog.style.minWidth = "300px";
+					dialog.style.minHeight = "200px";
+					dialog.style.padding = "20px";
 					dialog.style.backgroundColor = "rgba(0, 0, 0, 0.9)";
 					dialog.style.border = "2px solid #ccc";
 					dialog.style.borderRadius = "8px";
@@ -698,16 +699,47 @@ const skills = {
 					dialog.style.display = "flex";
 					dialog.style.justifyContent = "center";
 					dialog.style.alignItems = "center";
+					dialog.style.flexWrap = "wrap";
 					dialog.style.color = "white";
 					dialog.style.fontSize = "24px";
-					dialog.innerHTML = "荣";
+					
+					var cards = player.getExpansions("zhengrong");
+					if (cards && cards.length > 0) {
+						for (var i = 0; i < cards.length; i++) {
+							var cardWrapper = document.createElement("div");
+							cardWrapper.style.position = "relative";
+							cardWrapper.style.width = "110px";
+							cardWrapper.style.height = "150px";
+							cardWrapper.style.margin = "10px";
+							
+							if (typeof ui.create.card === "function") {
+								var cardNode = ui.create.card();
+								if (cardNode.init) cardNode.init(cards[i]);
+								cardNode.style.position = "absolute";
+								cardNode.style.left = "0";
+								cardNode.style.top = "0";
+								cardWrapper.appendChild(cardNode);
+							} else {
+								cardWrapper.style.border = "1px solid white";
+								cardWrapper.style.borderRadius = "4px";
+								cardWrapper.style.display = "flex";
+								cardWrapper.style.justifyContent = "center";
+								cardWrapper.style.alignItems = "center";
+								cardWrapper.style.fontSize = "16px";
+								cardWrapper.innerHTML = get.translation(cards[i].name);
+							}
+							
+							dialog.appendChild(cardWrapper);
+						}
+					} else {
+						dialog.innerHTML = "没有「荣」牌";
+					}
 					
 					container.appendChild(dialog);
 					
 					container.onclick = function(event) {
 						if (event.target === container) {
 							container.remove();
-							// 关闭十周年UI默认的弹窗
 							var poplayer = document.querySelector(".poplayer");
 							if (poplayer) poplayer.click();
 						}
