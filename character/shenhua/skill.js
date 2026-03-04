@@ -671,120 +671,93 @@ const skills = {
 		},
 		marktext: "荣",
 		intro: {
-			action: function(e, player) {
-				// 标记本身被点击时，可能被当成了武将牌点击，从而导致双重弹窗。
-				// 我们用阻止冒泡并提前清空可能已经生成的错误弹窗来解决这个问题。
-				if (e && e.stopPropagation) {
-					e.stopPropagation();
-				}
-				if (e && e.preventDefault) {
-					e.preventDefault();
-				}
-				
-				var container = document.createElement("div");
-				container.id = "zhengrong_custom_dialog";
-				container.style.position = "fixed";
-				container.style.left = "0";
-				container.style.top = "0";
-				container.style.width = "100%";
-				container.style.height = "100%";
-				container.style.zIndex = "10000";
-				container.style.backgroundColor = "transparent";
-				
-				// 立即且持续清理其他无关的系统弹窗
-				var cleanInterval = setInterval(function() {
+			content: function (storage, player, skill) {
+				setTimeout(function() {
+					var container = document.createElement("div");
+					container.id = "zhengrong_custom_dialog";
+					container.style.position = "fixed";
+					container.style.left = "0";
+					container.style.top = "0";
+					container.style.width = "100%";
+					container.style.height = "100%";
+					container.style.zIndex = "10000";
+					container.style.backgroundColor = "transparent";
+					
+					var dialog = document.createElement("div");
+					dialog.style.position = "absolute";
+					dialog.style.left = "50%";
+					dialog.style.top = "50%";
+					dialog.style.transform = "translate(-50%, -50%)";
+					dialog.style.minWidth = "300px";
+					dialog.style.minHeight = "200px";
+					dialog.style.padding = "20px";
+					dialog.style.backgroundColor = "transparent";
+					dialog.style.pointerEvents = "auto";
+					dialog.style.display = "flex";
+					dialog.style.justifyContent = "center";
+					dialog.style.alignItems = "center";
+					dialog.style.flexWrap = "wrap";
+					dialog.style.color = "white";
+					dialog.style.fontSize = "24px";
+					
+					var cards = player.getExpansions("zhengrong");
+					if (cards && cards.length > 0) {
+						for (var i = 0; i < cards.length; i++) {
+							var cardWrapper = document.createElement("div");
+							cardWrapper.style.position = "relative";
+							cardWrapper.style.width = "110px";
+							cardWrapper.style.height = "150px";
+							cardWrapper.style.margin = "10px";
+							
+							if (typeof ui.create.card === "function") {
+								var cardNode = ui.create.card();
+								if (cardNode.init) cardNode.init(cards[i]);
+								cardNode.style.position = "absolute";
+								cardNode.style.left = "0";
+								cardNode.style.top = "0";
+								cardWrapper.appendChild(cardNode);
+							} else {
+								cardWrapper.style.border = "1px solid white";
+								cardWrapper.style.borderRadius = "4px";
+								cardWrapper.style.display = "flex";
+								cardWrapper.style.justifyContent = "center";
+								cardWrapper.style.alignItems = "center";
+								cardWrapper.style.fontSize = "16px";
+								cardWrapper.innerHTML = get.translation(cards[i].name);
+							}
+							
+							dialog.appendChild(cardWrapper);
+						}
+					} else {
+						dialog.innerHTML = "没有「荣」牌";
+					}
+					
+					container.appendChild(dialog);
+					
+					container.onclick = function(event) {
+						if (event.target === container) {
+							container.remove();
+							// 用最温和的方式点一下底层遮罩，把状态交给框架自己处理，防止需要双击
+							var poplayer = document.querySelector(".poplayer");
+							if (poplayer) {
+								poplayer.click();
+							}
+						}
+					};
+					
+					document.body.appendChild(container);
+					
+					// 直接隐藏框架原生的气泡和弹窗框，避免它挡视线
 					var poppedNodes = document.querySelectorAll(".popped.static, .dialog");
 					for (var i = 0; i < poppedNodes.length; i++) {
 						if (poppedNodes[i].id !== "zhengrong_custom_dialog" && !poppedNodes[i].classList.contains("arena")) {
-							poppedNodes[i].style.display = "none";
+							poppedNodes[i].style.visibility = "hidden";
 						}
 					}
 				}, 10);
 				
-				var dialog = document.createElement("div");
-				dialog.style.position = "absolute";
-				dialog.style.left = "50%";
-				dialog.style.top = "50%";
-				dialog.style.transform = "translate(-50%, -50%)";
-				dialog.style.minWidth = "300px";
-				dialog.style.minHeight = "200px";
-				dialog.style.padding = "20px";
-				dialog.style.backgroundColor = "transparent";
-				dialog.style.pointerEvents = "auto";
-				dialog.style.display = "flex";
-				dialog.style.justifyContent = "center";
-				dialog.style.alignItems = "center";
-				dialog.style.flexWrap = "wrap";
-				dialog.style.color = "white";
-				dialog.style.fontSize = "24px";
-				
-				var cards = player.getExpansions("zhengrong");
-				if (cards && cards.length > 0) {
-					for (var i = 0; i < cards.length; i++) {
-						var cardWrapper = document.createElement("div");
-						cardWrapper.style.position = "relative";
-						cardWrapper.style.width = "110px";
-						cardWrapper.style.height = "150px";
-						cardWrapper.style.margin = "10px";
-						
-						if (typeof ui.create.card === "function") {
-							var cardNode = ui.create.card();
-							if (cardNode.init) cardNode.init(cards[i]);
-							cardNode.style.position = "absolute";
-							cardNode.style.left = "0";
-							cardNode.style.top = "0";
-							cardWrapper.appendChild(cardNode);
-						} else {
-							cardWrapper.style.border = "1px solid white";
-							cardWrapper.style.borderRadius = "4px";
-							cardWrapper.style.display = "flex";
-							cardWrapper.style.justifyContent = "center";
-							cardWrapper.style.alignItems = "center";
-							cardWrapper.style.fontSize = "16px";
-							cardWrapper.innerHTML = get.translation(cards[i].name);
-						}
-						
-						dialog.appendChild(cardWrapper);
-					}
-				} else {
-					dialog.innerHTML = "没有「荣」牌";
-				}
-				
-				container.appendChild(dialog);
-				
-				container.onclick = function(event) {
-					if (event.target === container) {
-						container.remove();
-						clearInterval(cleanInterval);
-						
-						// 为了解决需要点击2次才能操作的问题
-						// 这次我们用框架自身的清理方式来恢复
-						var poplayer = document.querySelector(".poplayer");
-						if (poplayer) {
-							if (typeof _status !== "undefined" && _status.removePop && poplayer.previousSibling) {
-								_status.removePop(poplayer.previousSibling);
-							}
-							poplayer.click();
-						}
-						
-						if (typeof _status !== "undefined") {
-							_status.clicked = false;
-						}
-						if (game.resume2) {
-							game.resume2();
-						}
-					}
-				};
-				
-				document.body.appendChild(container);
-				
-				// 给上层UI框架返回 false, 强制打断其后续弹窗流程
-				return false;
+				return " "; // 必须返回一个带有空格的字符串来触发底层渲染
 			},
-			content: function (storage, player, skill) {
-				return "";
-			},
-					
 			markcount: "expansion"
 		},
 	},
