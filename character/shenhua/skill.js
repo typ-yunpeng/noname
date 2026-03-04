@@ -639,7 +639,6 @@ const skills = {
 			return false;
 		},
 		async cost(event, trigger, player) {
-			console.log("【征荣】cost 发动，准备选择目标");
 			event.result = await player
 				.chooseTarget(get.prompt(event.skill), "将一名手牌数不小于你的目标角色的一张牌置于你的武将牌上，成为「荣」", function (card, player, target) {
 					return _status.event.targets.includes(target) && target.countCards("h") >= player.countCards("h") && target.countCards("he") > 0;
@@ -651,7 +650,6 @@ const skills = {
 				.forResult();
 		},
 		async content(event, trigger, player) {
-			console.log("【征荣】content 发动，目标为: ", event.targets);
 			const target = event.targets[0];
 			const next = player.choosePlayerCard(target, "he", true);
 			next.ai = get.buttonValue;
@@ -671,94 +669,8 @@ const skills = {
 		},
 		marktext: "荣",
 		intro: {
-			content: function (storage, player, skill) {
-				setTimeout(function() {
-					var container = document.createElement("div");
-					container.id = "zhengrong_custom_dialog";
-					container.style.position = "fixed";
-					container.style.left = "0";
-					container.style.top = "0";
-					container.style.width = "100%";
-					container.style.height = "100%";
-					container.style.zIndex = "10000";
-					container.style.backgroundColor = "transparent";
-					
-					var dialog = document.createElement("div");
-					dialog.style.position = "absolute";
-					dialog.style.left = "50%";
-					dialog.style.top = "50%";
-					dialog.style.transform = "translate(-50%, -50%)";
-					dialog.style.minWidth = "300px";
-					dialog.style.minHeight = "200px";
-					dialog.style.padding = "20px";
-					dialog.style.backgroundColor = "transparent";
-					dialog.style.pointerEvents = "auto";
-					dialog.style.display = "flex";
-					dialog.style.justifyContent = "center";
-					dialog.style.alignItems = "center";
-					dialog.style.flexWrap = "wrap";
-					dialog.style.color = "white";
-					dialog.style.fontSize = "24px";
-					
-					var cards = player.getExpansions("zhengrong");
-					if (cards && cards.length > 0) {
-						for (var i = 0; i < cards.length; i++) {
-							var cardWrapper = document.createElement("div");
-							cardWrapper.style.position = "relative";
-							cardWrapper.style.width = "110px";
-							cardWrapper.style.height = "150px";
-							cardWrapper.style.margin = "10px";
-							
-							if (typeof ui.create.card === "function") {
-								var cardNode = ui.create.card();
-								if (cardNode.init) cardNode.init(cards[i]);
-								cardNode.style.position = "absolute";
-								cardNode.style.left = "0";
-								cardNode.style.top = "0";
-								cardWrapper.appendChild(cardNode);
-							} else {
-								cardWrapper.style.border = "1px solid white";
-								cardWrapper.style.borderRadius = "4px";
-								cardWrapper.style.display = "flex";
-								cardWrapper.style.justifyContent = "center";
-								cardWrapper.style.alignItems = "center";
-								cardWrapper.style.fontSize = "16px";
-								cardWrapper.innerHTML = get.translation(cards[i].name);
-							}
-							
-							dialog.appendChild(cardWrapper);
-						}
-					} else {
-						dialog.innerHTML = "没有「荣」牌";
-					}
-					
-					container.appendChild(dialog);
-					
-					container.onclick = function(event) {
-						if (event.target === container) {
-							container.remove();
-							// 用最温和的方式点一下底层遮罩，把状态交给框架自己处理，防止需要双击
-							var poplayer = document.querySelector(".poplayer");
-							if (poplayer) {
-								poplayer.click();
-							}
-						}
-					};
-					
-					document.body.appendChild(container);
-					
-					// 直接隐藏框架原生的气泡和弹窗框，避免它挡视线
-					var poppedNodes = document.querySelectorAll(".popped.static, .dialog");
-					for (var i = 0; i < poppedNodes.length; i++) {
-						if (poppedNodes[i].id !== "zhengrong_custom_dialog" && !poppedNodes[i].classList.contains("arena")) {
-							poppedNodes[i].style.visibility = "hidden";
-						}
-					}
-				}, 10);
-				
-				return " "; // 必须返回一个带有空格的字符串来触发底层渲染
-			},
-			markcount: "expansion"
+			content: "expansion",
+			markcount: "expansion",
 		},
 	},
 	hongju: {
