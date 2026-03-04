@@ -672,36 +672,7 @@ const skills = {
 			content: "expansion",
 			markcount: "expansion",
 			action: function (e, player) {
-				const container = document.createElement("div");
-				container.style.position = "fixed";
-				container.style.left = "0";
-				container.style.top = "0";
-				container.style.width = "100%";
-				container.style.height = "100%";
-				container.style.zIndex = "10000";
-				
-				const dialog = document.createElement("div");
-				dialog.style.position = "absolute";
-				dialog.style.left = "50%";
-				dialog.style.top = "50%";
-				dialog.style.transform = "translate(-50%, -50%)";
-				dialog.style.width = "300px";
-				dialog.style.height = "200px";
-				dialog.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
-				dialog.style.border = "2px solid #ccc";
-				dialog.style.borderRadius = "8px";
-				dialog.style.boxShadow = "0 0 10px rgba(0,0,0,0.5)";
-				dialog.style.pointerEvents = "auto";
-				
-				container.appendChild(dialog);
-				
-				container.onclick = function(event) {
-					if (event.target === container) {
-						container.remove();
-					}
-				};
-				
-				document.body.appendChild(container);
+				alert("触发了荣的点击事件!");
 			}
 		},
 	},
