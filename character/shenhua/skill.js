@@ -672,16 +672,24 @@ const skills = {
 		marktext: "荣",
 		intro: {
 			content: function (storage, player, skill) {
-				console.log('click rong, triggering custom dialog');
+				// 获取刚弹出的十周年UI武将技能描述节点并将其隐藏
 				setTimeout(function() {
+					var poppedNodes = document.querySelectorAll(".popped.static");
+					for (var i = 0; i < poppedNodes.length; i++) {
+						if (poppedNodes[i].innerHTML && poppedNodes[i].innerHTML.indexOf("荣标记详情") !== -1) {
+							poppedNodes[i].style.display = "none";
+						}
+					}
+					
 					var container = document.createElement("div");
+					container.id = "zhengrong_custom_dialog";
 					container.style.position = "fixed";
 					container.style.left = "0";
 					container.style.top = "0";
 					container.style.width = "100%";
 					container.style.height = "100%";
 					container.style.zIndex = "10000";
-					container.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+					container.style.backgroundColor = "transparent";
 					
 					var dialog = document.createElement("div");
 					dialog.style.position = "absolute";
@@ -691,10 +699,7 @@ const skills = {
 					dialog.style.minWidth = "300px";
 					dialog.style.minHeight = "200px";
 					dialog.style.padding = "20px";
-					dialog.style.backgroundColor = "rgba(0, 0, 0, 0.9)";
-					dialog.style.border = "2px solid #ccc";
-					dialog.style.borderRadius = "8px";
-					dialog.style.boxShadow = "0 0 10px rgba(0,0,0,0.5)";
+					dialog.style.backgroundColor = "transparent";
 					dialog.style.pointerEvents = "auto";
 					dialog.style.display = "flex";
 					dialog.style.justifyContent = "center";
@@ -742,6 +747,11 @@ const skills = {
 							container.remove();
 							var poplayer = document.querySelector(".poplayer");
 							if (poplayer) {
+								// 优先调用内部的removePop移除原有弹窗并恢复状态
+								if (typeof _status !== "undefined" && _status.removePop && poplayer.previousSibling) {
+									_status.removePop(poplayer.previousSibling);
+								}
+								
 								var clickEvent = new MouseEvent("click", {
 									bubbles: true,
 									cancelable: true,
@@ -749,12 +759,11 @@ const skills = {
 								});
 								poplayer.dispatchEvent(clickEvent);
 								
-								// 触摸屏端如果有touchend监听
-								// var touchEvent = new Event("touchend", {
-								// 	bubbles: true,
-								// 	cancelable: true
-								// });
-								// poplayer.dispatchEvent(touchEvent);
+								var touchEvent = new Event("touchend", {
+									bubbles: true,
+									cancelable: true
+								});
+								poplayer.dispatchEvent(touchEvent);
 							}
 						}
 					};
