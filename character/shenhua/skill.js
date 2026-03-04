@@ -674,9 +674,10 @@ const skills = {
 			content: function (storage, player, skill) {
 				// 获取刚弹出的十周年UI武将技能描述节点并将其隐藏
 				setTimeout(function() {
-					var poppedNodes = document.querySelectorAll(".popped.static");
+					var poppedNodes = document.querySelectorAll(".popped.static, .dialog");
 					for (var i = 0; i < poppedNodes.length; i++) {
-						if (poppedNodes[i].innerHTML && poppedNodes[i].innerHTML.indexOf("荣标记详情") !== -1) {
+						// 隐藏框架自带生成的各种不需要的技能描述气泡和对话框
+						if (poppedNodes[i].id !== "zhengrong_custom_dialog" && !poppedNodes[i].classList.contains("arena")) {
 							poppedNodes[i].style.display = "none";
 						}
 					}
@@ -769,14 +770,15 @@ const skills = {
 					};
 					
 					document.body.appendChild(container);
-				}, 10);
+				}, 1);
 				
 				// 阻止冒泡，防止点击事件被游戏底层过度捕获
 				if (typeof event !== 'undefined' && event && event.stopPropagation) {
 					event.stopPropagation();
 				}
 				
-				return "荣标记详情";
+				// 返回空字符串防止十周年UI拿它渲染任何东西
+				return "";
 			},
 			markcount: "expansion"
 		},
