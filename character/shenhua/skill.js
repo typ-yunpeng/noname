@@ -741,20 +741,32 @@ const skills = {
 						if (event.target === container) {
 							container.remove();
 							var poplayer = document.querySelector(".poplayer");
-							if (poplayer) poplayer.click();
-							
-							// 解决需要点击两次的问题，恢复无名杀的全局点击状态
-							if (_status.clicked) {
-								_status.clicked = false;
-							}
-							if (game.resume2) {
-								game.resume2();
+							if (poplayer) {
+								var clickEvent = new MouseEvent("click", {
+									bubbles: true,
+									cancelable: true,
+									view: window
+								});
+								poplayer.dispatchEvent(clickEvent);
+								
+								// 触摸屏端如果有touchend监听
+								var touchEvent = new Event("touchend", {
+									bubbles: true,
+									cancelable: true
+								});
+								poplayer.dispatchEvent(touchEvent);
 							}
 						}
 					};
 					
 					document.body.appendChild(container);
 				}, 10);
+				
+				// 阻止冒泡，防止点击事件被游戏底层过度捕获
+				if (typeof event !== 'undefined' && event && event.stopPropagation) {
+					event.stopPropagation();
+				}
+				
 				return "荣标记详情";
 			},
 			markcount: "expansion"
