@@ -750,11 +750,11 @@ const skills = {
 								poplayer.dispatchEvent(clickEvent);
 								
 								// 触摸屏端如果有touchend监听
-								var touchEvent = new Event("touchend", {
-									bubbles: true,
-									cancelable: true
-								});
-								poplayer.dispatchEvent(touchEvent);
+								// var touchEvent = new Event("touchend", {
+								// 	bubbles: true,
+								// 	cancelable: true
+								// });
+								// poplayer.dispatchEvent(touchEvent);
 							}
 						}
 					};
