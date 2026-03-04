@@ -742,6 +742,14 @@ const skills = {
 							container.remove();
 							var poplayer = document.querySelector(".poplayer");
 							if (poplayer) poplayer.click();
+							
+							// 解决需要点击两次的问题，恢复无名杀的全局点击状态
+							if (_status.clicked) {
+								_status.clicked = false;
+							}
+							if (game.resume2) {
+								game.resume2();
+							}
 						}
 					};
 					
