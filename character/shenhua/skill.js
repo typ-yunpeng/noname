@@ -671,8 +671,8 @@ const skills = {
 		intro: {
 			content: "expansion",
 			markcount: "expansion",
-			action: function (e, player) {
-				alert("触发了荣的点击事件!");
+			onclick: function (player) {
+				alert("点击了荣标记！");
 			}
 		},
 	},
