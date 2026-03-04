@@ -673,7 +673,6 @@ const skills = {
 		intro: {
 			content: function (storage, player, skill) {
 				console.log("【征荣】弹窗内容请求被触发");
-				alert("成功拦截到点击，正在生成对话框！");
 				return "<div style='width: 150px; height: 100px; display: flex; justify-content: center; align-items: center; font-size: 24px;'>荣</div>";
 			},
 			markcount: "expansion"
