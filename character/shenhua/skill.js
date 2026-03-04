@@ -671,6 +671,27 @@ const skills = {
 		intro: {
 			content: "expansion",
 			markcount: "expansion",
+			onclick: function (player) {
+				const dialog = ui.create.dialog("hidden");
+				dialog.classList.add("popped");
+				dialog.classList.add("static");
+				ui.window.appendChild(dialog);
+				const layer = ui.create.div(".poplayer", ui.window);
+				const closeDialog = function (e) {
+					if (e && e.stopPropagation) {
+						e.stopPropagation();
+					}
+					dialog.delete();
+					this.remove();
+				};
+				layer.addEventListener("click", closeDialog);
+				layer.addEventListener("touchend", closeDialog);
+				layer.oncontextmenu = closeDialog;
+				const rect = this.getBoundingClientRect();
+				const zoom = game.hasExtension && game.hasExtension("皮肤切换") ? game.documentZoom : 1;
+				ui.placePoppedDialog(dialog, { clientX: (rect.left + 10) * zoom, clientY: (rect.top + 10) * zoom });
+				return false;
+			}
 		},
 	},
 	hongju: {
