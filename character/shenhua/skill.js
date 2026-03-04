@@ -639,6 +639,7 @@ const skills = {
 			return false;
 		},
 		async cost(event, trigger, player) {
+			console.log("【征荣】cost 发动，准备选择目标");
 			event.result = await player
 				.chooseTarget(get.prompt(event.skill), "将一名手牌数不小于你的目标角色的一张牌置于你的武将牌上，成为「荣」", function (card, player, target) {
 					return _status.event.targets.includes(target) && target.countCards("h") >= player.countCards("h") && target.countCards("he") > 0;
@@ -650,6 +651,7 @@ const skills = {
 				.forResult();
 		},
 		async content(event, trigger, player) {
+			console.log("【征荣】content 发动，目标为: ", event.targets);
 			const target = event.targets[0];
 			const next = player.choosePlayerCard(target, "he", true);
 			next.ai = get.buttonValue;
@@ -672,7 +674,10 @@ const skills = {
 			content: "expansion",
 			markcount: "expansion",
 			onclick: function (player) {
-				alert("点击了荣标记！");
+				console.log("【征荣】标记 onclick 被触发", player);
+			},
+			action: function (e, player) {
+				console.log("【征荣】标记 action 被触发", e, player);
 			}
 		},
 	},
