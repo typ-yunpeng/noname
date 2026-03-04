@@ -672,8 +672,50 @@ const skills = {
 		marktext: "荣",
 		intro: {
 			content: function (storage, player, skill) {
-				console.log('click rong');
-				return "<div style='width: 300px; height: 200px; background-color: rgba(0, 0, 0, 0.85); border: 2px solid #fff; border-radius: 8px; display: flex; justify-content: center; align-items: center; color: white; font-size: 24px; box-shadow: 0 0 15px rgba(0,0,0,0.5);'>荣 - 这是一个空的对话框区域</div>";
+				console.log('click rong, triggering custom dialog');
+				setTimeout(function() {
+					var container = document.createElement("div");
+					container.style.position = "fixed";
+					container.style.left = "0";
+					container.style.top = "0";
+					container.style.width = "100%";
+					container.style.height = "100%";
+					container.style.zIndex = "10000";
+					container.style.backgroundColor = "rgba(0, 0, 0, 0.5)"; // 添加半透明遮罩
+					
+					var dialog = document.createElement("div");
+					dialog.style.position = "absolute";
+					dialog.style.left = "50%";
+					dialog.style.top = "50%";
+					dialog.style.transform = "translate(-50%, -50%)";
+					dialog.style.width = "300px";
+					dialog.style.height = "200px";
+					dialog.style.backgroundColor = "rgba(0, 0, 0, 0.9)";
+					dialog.style.border = "2px solid #ccc";
+					dialog.style.borderRadius = "8px";
+					dialog.style.boxShadow = "0 0 10px rgba(0,0,0,0.5)";
+					dialog.style.pointerEvents = "auto";
+					dialog.style.display = "flex";
+					dialog.style.justifyContent = "center";
+					dialog.style.alignItems = "center";
+					dialog.style.color = "white";
+					dialog.style.fontSize = "24px";
+					dialog.innerHTML = "荣";
+					
+					container.appendChild(dialog);
+					
+					container.onclick = function(event) {
+						if (event.target === container) {
+							container.remove();
+							// 关闭十周年UI默认的弹窗
+							var poplayer = document.querySelector(".poplayer");
+							if (poplayer) poplayer.click();
+						}
+					};
+					
+					document.body.appendChild(container);
+				}, 10);
+				return "荣标记详情";
 			},
 			markcount: "expansion"
 		},
