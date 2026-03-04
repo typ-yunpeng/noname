@@ -672,8 +672,11 @@ const skills = {
 		marktext: "荣",
 		intro: {
 			content: function (storage, player, skill) {
-				console.log("【征荣】弹窗内容请求被触发");
-				return "<div style='width: 150px; height: 100px; display: flex; justify-content: center; align-items: center; font-size: 24px;'>荣</div>";
+				console.log('click rong');
+				var div = ui.create.div();
+				div.style.cssText = "width: 300px; height: 200px; background-color: rgba(0, 0, 0, 0.85); border: 2px solid #fff; border-radius: 8px; display: flex; justify-content: center; align-items: center; color: white; font-size: 24px; box-shadow: 0 0 15px rgba(0,0,0,0.5);";
+				div.innerHTML = "荣 - 这是一个空的对话框区域";
+				return div;
 			},
 			markcount: "expansion"
 		},
