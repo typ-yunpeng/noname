@@ -671,26 +671,37 @@ const skills = {
 		intro: {
 			content: "expansion",
 			markcount: "expansion",
-			onclick: function (player) {
-				const dialog = ui.create.dialog("hidden");
-				dialog.classList.add("popped");
-				dialog.classList.add("static");
-				ui.window.appendChild(dialog);
-				const layer = ui.create.div(".poplayer", ui.window);
-				const closeDialog = function (e) {
-					if (e && e.stopPropagation) {
-						e.stopPropagation();
+			action: function (e, player) {
+				const container = document.createElement("div");
+				container.style.position = "fixed";
+				container.style.left = "0";
+				container.style.top = "0";
+				container.style.width = "100%";
+				container.style.height = "100%";
+				container.style.zIndex = "10000";
+				
+				const dialog = document.createElement("div");
+				dialog.style.position = "absolute";
+				dialog.style.left = "50%";
+				dialog.style.top = "50%";
+				dialog.style.transform = "translate(-50%, -50%)";
+				dialog.style.width = "300px";
+				dialog.style.height = "200px";
+				dialog.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+				dialog.style.border = "2px solid #ccc";
+				dialog.style.borderRadius = "8px";
+				dialog.style.boxShadow = "0 0 10px rgba(0,0,0,0.5)";
+				dialog.style.pointerEvents = "auto";
+				
+				container.appendChild(dialog);
+				
+				container.onclick = function(event) {
+					if (event.target === container) {
+						container.remove();
 					}
-					dialog.delete();
-					this.remove();
 				};
-				layer.addEventListener("click", closeDialog);
-				layer.addEventListener("touchend", closeDialog);
-				layer.oncontextmenu = closeDialog;
-				const rect = this.getBoundingClientRect();
-				const zoom = game.hasExtension && game.hasExtension("皮肤切换") ? game.documentZoom : 1;
-				ui.placePoppedDialog(dialog, { clientX: (rect.left + 10) * zoom, clientY: (rect.top + 10) * zoom });
-				return false;
+				
+				document.body.appendChild(container);
 			}
 		},
 	},
