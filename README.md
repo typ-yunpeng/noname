@@ -8,6 +8,10 @@
 1. 打包、二次分发 **请保留代码出处**：<https://github.com/libnoname/noname>
 2. 请不要用于商业用途。
 
+## 项目文档
+
+[项目简介与构建、启动指南](./docs/project-intro.md)
+
 ## 快速启动
 
 ### 环境要求
